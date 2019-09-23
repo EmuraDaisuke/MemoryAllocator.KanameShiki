@@ -3,7 +3,7 @@ Kaname-Shiki is a lightweight and fast memory allocator.
 
 It has the following features.  
 * Fast allocation and free of any size
-* Fast Cache mechanism (local thread FreeList and other thread FreeList)
+* Fast Cache mechanism (own thread FreeList and other thread FreeList)
   * At the time of own thread FreeList operation, no atomic operation, no CAS operation (Lock-Free & Wait-Free)
   * At the time of other thread FreeList operation, one atomic operation and one CAS loop (Lock-Free, !Wait-Free)
   * Use own-threaded FreeList preferentially
@@ -75,7 +75,7 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 
 ### Allocation
 * When an allocation request comes, the area is taken out from its own thread FreeList and returned to the application
-* If the local thread FreeList is empty, allocation is performed from the other thread FreeList
+* If the own thread FreeList is empty, allocation is performed from the other thread FreeList
   * The other thread FreeList referenced at this time is connected to its own thread FreeList (one atomic operation)
 * If other thread FreeList is empty, entrust processing to the allocator that has the Cache mechanism
 
