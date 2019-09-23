@@ -48,6 +48,12 @@ The unit is seconds. The lower the number, the faster.
 
 <br>
 
+# Construction
+![Allocate](./Image/Allocate.png)
+![Free](./Image/Free.png)
+
+<br>
+
 # Explanation
 
 ## Factors for speeding up
