@@ -155,7 +155,7 @@ GlobalReserver からの割り当て要求と開放要求を処理します。
 ## **Msvc**
 Microsoft(R) C/C++ Optimizing Compiler Version 19.16.27034 for x64  
 
-追加のコンパイルオプション
+追加のコンパイルオプション  
 ~~~
 -DCATEGORY=0～4
 0 or undefined : 0B～32MiB
