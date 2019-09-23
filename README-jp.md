@@ -37,14 +37,14 @@ testA ～ testI まで、9種類のテストを行った累計です。
 ![c2](./Image/c2.png)
 ![c3](./Image/c3.png)
 ![c4](./Image/c4.png)
-！注意！：mimalloc は、「2MiB～32MiB」のテストで、割り当ての失敗が24万回起きている為、解放の負荷が計上されていません。  
+**！注意！**：mimalloc は、「2MiB～32MiB」のテストで、割り当ての失敗が24万回起きている為、解放の負荷が計上されていません。  
 
 ## メモリーフィルを伴った、割り当てと解放（HardwareCache 効率）
 ![fill_c1](./Image/fill_c1.png)
 ![fill_c2](./Image/fill_c2.png)
 ![fill_c3](./Image/fill_c3.png)
 ![fill_c4](./Image/fill_c4.png)
-！注意！：mimalloc は、「2MiB～32MiB」のテストで、割り当ての失敗が23万回起きている為、メモリーフィルと解放の負荷が計上されていません。  
+**！注意！**：mimalloc は、「2MiB～32MiB」のテストで、割り当ての失敗が23万回起きている為、メモリーフィルと解放の負荷が計上されていません。  
 
 <br>
 
