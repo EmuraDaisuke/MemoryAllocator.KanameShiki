@@ -122,7 +122,7 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 ## LocalCram
 ### Flexible sized allocator
 * Has a Cache mechanism
-* Allocates a "2 to the power of N ≤ size <2 to the power of N + 1"
+* Allocates a "2 to the power of N ≤ size <2 to the power of (N+1)"
 * In the initial state, the own thread FreeList and the other thread FreeList are empty
 * If FreeList is empty, allocate space and return to application if requested size is available
 * If there is no free space for the requested size, a new LocalCram is created and allocated
