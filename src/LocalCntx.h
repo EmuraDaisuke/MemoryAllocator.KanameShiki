@@ -14,7 +14,8 @@ class LocalCntx final : private NonCopyable<LocalCntx> {
 	public:
 		~LocalCntx() noexcept;
 		
-		LocalCntx();
+		LocalCntx() = default;
+		LocalCntx(bool bInit);
 		
 		void ReserverFree(void* p) noexcept;
 		void* ReserverAlloc(std::size_t s) noexcept;

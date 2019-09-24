@@ -4,6 +4,8 @@
 #include "./KanameShiki.h"
 
 #include "./Func.cpp"
+#include "./New.cpp"
+#include "./Posix.cpp"
 #include "./Parcel.cpp"
 
 #include "./LocalPool.cpp"

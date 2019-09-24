@@ -8,9 +8,12 @@ namespace KanameShiki {
 
 class GlobalHeap final : private NonCopyable<GlobalHeap> {
 	public:
-		~GlobalHeap() noexcept;
+		~GlobalHeap() noexcept				= default;
 		
+		GlobalHeap()						= default;
 		GlobalHeap(std::size_t s);
+		
+		void Destruct() noexcept;
 		
 		void Free(void* p) noexcept;
 		void* AllocUpper(std::size_t s) noexcept;
@@ -37,8 +40,8 @@ class GlobalHeap final : private NonCopyable<GlobalHeap> {
 		
 		std::mutex mMutex;
 		
-		const std::size_t ms;
-		void* const mp;
+		std::size_t ms;
+		void* mp;
 		
 		int64_t mnAlloc;
 		

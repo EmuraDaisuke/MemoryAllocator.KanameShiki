@@ -3,8 +3,20 @@
 
 using namespace KanameShiki;
 
+
+
+#ifdef _WIN32//[
+#pragma init_seg(lib)
 static GlobalCntx gGlobalCntx;
+static GlobalCntx* volatile gpGlobalCntx(nullptr);
+#else//][
+static __attribute__((init_priority(101))) GlobalCntx gGlobalCntx;
+static __attribute__((init_priority(101))) GlobalCntx* volatile gpGlobalCntx(nullptr);
+#endif//]
+
+thread_local std::once_flag gbLocalCntx;
 thread_local LocalCntx gLocalCntx;
+thread_local LocalCntx* volatile gpLocalCntx(nullptr);
 
 
 
@@ -65,16 +77,30 @@ void SystemFree(void* p, std::size_t s) noexcept
 
 // Global
 
+GlobalCntx* GlobalCntxPtr() noexcept
+{
+	Auto pGlobalCntx = gpGlobalCntx;
+	if (pGlobalCntx){
+		return pGlobalCntx;
+	} else {
+		gpGlobalCntx = &gGlobalCntx;
+		new(gpGlobalCntx) GlobalCntx(true);
+		return gpGlobalCntx;
+	}
+}
+
+
+
 void GlobalHeapFree(void* p) noexcept
 {
-	if (p) gGlobalCntx.HeapFree(p);
+	if (p) GlobalCntxPtr()->HeapFree(p);
 }
 
 
 
 void* GlobalHeapAlloc(std::size_t s) noexcept
 {
-	Auto p = gGlobalCntx.HeapAlloc(s);
+	Auto p = GlobalCntxPtr()->HeapAlloc(s);
 	#if !KANAMESHIKI_HEAP_SPECIALIZATION//[
 	assert(p);
 	#endif//]
@@ -85,21 +111,21 @@ void* GlobalHeapAlloc(std::size_t s) noexcept
 
 void GlobalReserverRelease() noexcept
 {
-	gGlobalCntx.ReserverRelease();
+	GlobalCntxPtr()->ReserverRelease();
 }
 
 
 
 void GlobalReserverFree(void* p) noexcept
 {
-	if (p) gGlobalCntx.ReserverFree(p);
+	if (p) GlobalCntxPtr()->ReserverFree(p);
 }
 
 
 
 void* GlobalReserverAlloc(std::size_t s) noexcept
 {
-	Auto p = gGlobalCntx.ReserverAlloc(s);
+	Auto p = GlobalCntxPtr()->ReserverAlloc(s);
 	assert(p);
 	return p;
 }
@@ -108,23 +134,40 @@ void* GlobalReserverAlloc(std::size_t s) noexcept
 
 uint32_t NumReserver(uint16_t Realm) noexcept
 {
-	return gGlobalCntx.NumReserver(Realm);
+	return GlobalCntxPtr()->NumReserver(Realm);
 }
 
 
 
 // Local
 
+LocalCntx* LocalCntxPtr() noexcept
+{
+	Auto pLocalCntx = gpLocalCntx;
+	if (pLocalCntx){
+		return pLocalCntx;
+	} else {
+		std::call_once(gbLocalCntx, [](){
+			new(&gLocalCntx) LocalCntx(true);
+		});
+		
+		while (!gpLocalCntx) std::this_thread::yield();
+		return gpLocalCntx;
+	}
+}
+
+
+
 void LocalReserverFree(void* p) noexcept
 {
-	if (p) gLocalCntx.ReserverFree(p);
+	if (p) LocalCntxPtr()->ReserverFree(p);
 }
 
 
 
 void* LocalReserverAlloc(std::size_t s) noexcept
 {
-	Auto p = gLocalCntx.ReserverAlloc(s);
+	Auto p = LocalCntxPtr()->ReserverAlloc(s);
 	assert(p);
 	return p;
 }
@@ -147,7 +190,7 @@ void Free(void* p) noexcept
 
 void* Alloc(std::size_t s) noexcept
 {
-	Auto p = gLocalCntx.Alloc(s);
+	Auto p = LocalCntxPtr()->Alloc(s);
 	assert(p);
 	return p;
 }
@@ -160,7 +203,7 @@ void* Align(std::size_t a, std::size_t s) noexcept
 	Auto sParcel = Parcel::SizeofT();
 	Auto sHeader = sRelay + sParcel;
 	
-	Auto p = gLocalCntx.Alloc(sHeader + a + s);
+	Auto p = LocalCntxPtr()->Alloc(sHeader + a + s);
 	assert(p);
 	if (p){
 		Auto pAlign = align_p(offset_p(p, sHeader), a);
@@ -183,11 +226,7 @@ void* ReAlloc(void* p, std::size_t s) noexcept
 	if (sNew){
 		Auto pNew = Alloc(sNew);
 		if (pNew && pOld){
-			Auto pParcel = Parcel::CastParcel(pOld);
-			Auto pOwner = pParcel->Owner();
-			assert(pOwner);
-			
-			Auto sOld = pOwner->Size(pParcel);
+			Auto sOld = Size(pOld);
 			std::memcpy(pNew, pOld, (sNew < sOld)? sNew: sOld);
 			Free(pOld);
 		}
@@ -196,6 +235,16 @@ void* ReAlloc(void* p, std::size_t s) noexcept
 		Free(pOld);
 		return nullptr;
 	}
+}
+
+
+
+std::size_t Size(void* p) noexcept
+{
+	Auto pParcel = Parcel::CastParcel(p);
+	Auto pOwner = pParcel->Owner();
+	assert(pOwner);
+	return pOwner->Size(pParcel);
 }
 
 

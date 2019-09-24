@@ -114,17 +114,6 @@ class alignas(csCacheLine) GlobalHeap::Node final {
 
 // GlobalHeap
 
-GlobalHeap::~GlobalHeap() noexcept
-{
-	SystemFree(mp, ms);
-	
-	#if KANAMESHIKI_DEBUG_LEVEL == 2//[
-	assert(mnAlloc == 0);
-	#endif//]
-}
-
-
-
 GlobalHeap::GlobalHeap(std::size_t s)
 :ms(s)
 ,mp(SystemAlloc(s))
@@ -144,6 +133,17 @@ GlobalHeap::GlobalHeap(std::size_t s)
 		
 		AddFree(pFree, sFree);
 	}
+}
+
+
+
+void GlobalHeap::Destruct() noexcept
+{
+	SystemFree(mp, ms);
+	
+	#if KANAMESHIKI_DEBUG_LEVEL == 2//[
+	assert(mnAlloc == 0);
+	#endif//]
 }
 
 

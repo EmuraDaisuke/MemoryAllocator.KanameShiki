@@ -8,10 +8,12 @@ namespace KanameShiki {
 
 class LocalReserver final : private NonCopyable<LocalReserver> {
 	public:
-		~LocalReserver() noexcept;
+		~LocalReserver() noexcept			= default;
 		
-		LocalReserver();
+		LocalReserver()						= default;
+		LocalReserver(bool bInit);
 		
+		void Destruct() noexcept;
 		void Release() noexcept;
 		
 		void Free(void* p) noexcept;

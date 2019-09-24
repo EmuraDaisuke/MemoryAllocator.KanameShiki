@@ -90,16 +90,7 @@ class LocalReserver::Segment final {
 
 // LocalReserver
 
-LocalReserver::~LocalReserver() noexcept
-{
-	for (auto& rpSegment : mapRealm){
-		delete rpSegment;
-	}
-}
-
-
-
-LocalReserver::LocalReserver()
+LocalReserver::LocalReserver(bool bInit)
 {
 	uint16_t Realm = 0;
 	for (auto& rpSegment : mapRealm){
@@ -107,6 +98,16 @@ LocalReserver::LocalReserver()
 		rpSegment = new(nReserver, std::nothrow) LocalReserver::Segment(nReserver, Realm);
 		assert(rpSegment);
 		++Realm;
+	}
+}
+
+
+
+void LocalReserver::Destruct() noexcept
+{
+	for (auto& rpSegment : mapRealm){
+		if (rpSegment) delete rpSegment;
+		rpSegment = nullptr;
 	}
 }
 

@@ -32,9 +32,11 @@ using atomic_uint64_t = atomic<uint64_t>;
 #include "./Util.h"
 
 #include "./Config.h"
-#include "./Func.h"
-#include "./Decl.h"
+
 #include "./Lzc.h"
+#include "./Decl.h"
+#include "./Func.h"
+#include "./Posix.h"
 
 #include "./Tag.h"
 #include "./Base.h"

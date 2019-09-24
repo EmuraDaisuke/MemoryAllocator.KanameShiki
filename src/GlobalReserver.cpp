@@ -218,15 +218,6 @@ class GlobalReserver::Segment final {
 
 // GlobalReserver
 
-GlobalReserver::~GlobalReserver() noexcept
-{
-	for (auto& rpSegment : mapRealm){
-		delete rpSegment;
-	}
-}
-
-
-
 GlobalReserver::GlobalReserver(uint8_t bRevolver)
 {
 	uint16_t nRevolver = bit(bRevolver);
@@ -237,6 +228,16 @@ GlobalReserver::GlobalReserver(uint8_t bRevolver)
 		rpSegment = new(nRevolver, nReserver, std::nothrow) GlobalReserver::Segment(nRevolver, nReserver, Realm);
 		assert(rpSegment);
 		++Realm;
+	}
+}
+
+
+
+void GlobalReserver::Destruct() noexcept
+{
+	for (auto& rpSegment : mapRealm){
+		if (rpSegment) delete rpSegment;
+		rpSegment = nullptr;
 	}
 }
 

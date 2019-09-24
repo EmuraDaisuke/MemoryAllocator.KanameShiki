@@ -6,15 +6,12 @@ namespace KanameShiki {
 
 
 
-bool IsBootGlobalCntx() noexcept;
-
-
-
 class GlobalCntx final : private NonCopyable<GlobalCntx> {
 	public:
 		~GlobalCntx() noexcept;
 		
-		GlobalCntx();
+		GlobalCntx() = default;
+		GlobalCntx(bool bInit);
 		
 		void HeapFree(void* p) noexcept;
 		void* HeapAlloc(std::size_t s) noexcept;
@@ -29,9 +26,9 @@ class GlobalCntx final : private NonCopyable<GlobalCntx> {
 	private:
 		GlobalHeap mHeap;
 		
-		const uint32_t mnRevolver;
-		const uint32_t mbRevolver;
-		const std::size_t msReserver;
+		uint32_t mnRevolver;
+		uint32_t mbRevolver;
+		std::size_t msReserver;
 		GlobalReserver mReserver;
 };
 

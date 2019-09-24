@@ -5,6 +5,8 @@ namespace KanameShiki {
 
 
 
+thread_local uint8_t gvLocalCntx(0);
+
 alignas(csCacheLine) std::atomic_uint64_t gnLocalCntx(0);
 
 
@@ -18,34 +20,45 @@ uint64_t NumLocalCntx() noexcept
 
 LocalCntx::~LocalCntx() noexcept
 {
-	for (Auto pPool : mapPool){
-		if (pPool){
-			pPool->Clearance();
-			if (pPool->Closed()) pPool->Delete();
+	if (gvLocalCntx && --gvLocalCntx == 0){
+		for (Auto pPool : mapPool){
+			if (pPool){
+				pPool->Clearance();
+				if (pPool->Closed()) pPool->Delete();
+			}
 		}
-	}
-	
-	for (Auto pCram : mapCram){
-		if (pCram){
-			pCram->Clearance();
-			if (pCram->Closed()) pCram->Delete();
+		
+		for (Auto pCram : mapCram){
+			if (pCram){
+				pCram->Clearance();
+				if (pCram->Closed()) pCram->Delete();
+			}
 		}
+		
+		mReserver.Destruct();
+		
+		gpLocalCntx = nullptr;
+		
+		#if KANAMESHIKI_DEBUG_LEVEL//[
+		gnLocalCntx.fetch_sub(1, std::memory_order_acq_rel);
+		#endif//]
 	}
-	
-	#if KANAMESHIKI_DEBUG_LEVEL//[
-	gnLocalCntx.fetch_sub(1, std::memory_order_acq_rel);
-	#endif//]
 }
 
 
 
-LocalCntx::LocalCntx()
+LocalCntx::LocalCntx(bool bInit)
 :mapCram{}
 ,mapPool{}
+,mReserver(true)
 {
-	#if KANAMESHIKI_DEBUG_LEVEL//[
-	gnLocalCntx.fetch_add(1, std::memory_order_acq_rel);
-	#endif//]
+	if (gvLocalCntx++ == 0){
+		gpLocalCntx = this;
+		
+		#if KANAMESHIKI_DEBUG_LEVEL//[
+		gnLocalCntx.fetch_add(1, std::memory_order_acq_rel);
+		#endif//]
+	}
 }
 
 

@@ -5,19 +5,10 @@ namespace KanameShiki {
 
 
 
-static volatile bool gbGlobalCntx(false);
-
-
-
-bool IsBootGlobalCntx() noexcept
-{
-	return gbGlobalCntx;
-}
-
-
-
 GlobalCntx::~GlobalCntx() noexcept
 {
+	if (gpLocalCntx) gpLocalCntx->~LocalCntx();
+	
 	#if KANAMESHIKI_DEBUG_LEVEL == 1//[
 	// If LocalPool, LocalCram, and LocalAny do not exist, excess LocalCntx is ignored.
 	Auto ExistLocal = [](){ return (NumLocalCntx() && (NumLocalPool() | NumLocalCram() | NumLocalAny())); };
@@ -33,19 +24,19 @@ GlobalCntx::~GlobalCntx() noexcept
 	}
 	#endif//]
 	
-	gbGlobalCntx = false;
+	mReserver.Destruct();
+	mHeap.Destruct();
 }
 
 
 
-GlobalCntx::GlobalCntx()
+GlobalCntx::GlobalCntx(bool bInit)
 :mHeap(csHeap)
 ,mnRevolver(std::thread::hardware_concurrency())
 ,mbRevolver((mnRevolver)? Lzc::Msb(mnRevolver + mnRevolver - 1):0)
 ,msReserver(bit(cbMemory - mbRevolver - cbFrac))
 ,mReserver(mbRevolver)
 {
-	gbGlobalCntx = true;
 }
 
 

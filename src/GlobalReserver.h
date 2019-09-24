@@ -8,10 +8,12 @@ namespace KanameShiki {
 
 class GlobalReserver final : private NonCopyable<GlobalReserver> {
 	public:
-		~GlobalReserver() noexcept;
+		~GlobalReserver() noexcept			= default;
 		
+		GlobalReserver()					= default;
 		GlobalReserver(uint8_t bRevolver);
 		
+		void Destruct() noexcept;
 		void Release() noexcept;
 		
 		void Free(void* p) noexcept;
