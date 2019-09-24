@@ -13,12 +13,11 @@ static GlobalCntx* volatile gpGlobalCntx(nullptr);
 thread_local LocalCntx gLocalCntx;
 thread_local LocalCntx* volatile gpLocalCntx(nullptr);
 #else//][
-#error
-//static GlobalCntx __attribute__((init_priority(101))) gGlobalCntx;
-//static GlobalCntx* volatile gpGlobalCntx(nullptr);
+static GlobalCntx __attribute__((init_priority(101))) gGlobalCntx;
+static GlobalCntx* volatile gpGlobalCntx(nullptr);
 
-//thread_local LocalCntx gLocalCntx;
-//thread_local LocalCntx* volatile gpLocalCntx(nullptr);
+thread_local LocalCntx gLocalCntx;
+thread_local LocalCntx* volatile gpLocalCntx(nullptr);
 #endif//]
 
 
