@@ -9,14 +9,17 @@ using namespace KanameShiki;
 #pragma init_seg(lib)
 static GlobalCntx gGlobalCntx;
 static GlobalCntx* volatile gpGlobalCntx(nullptr);
-#else//][
-static __attribute__((init_priority(101))) GlobalCntx gGlobalCntx;
-static __attribute__((init_priority(101))) GlobalCntx* volatile gpGlobalCntx(nullptr);
-#endif//]
 
-thread_local std::once_flag gbLocalCntx;
 thread_local LocalCntx gLocalCntx;
 thread_local LocalCntx* volatile gpLocalCntx(nullptr);
+#else//][
+#error
+//static GlobalCntx __attribute__((init_priority(101))) gGlobalCntx;
+//static GlobalCntx* volatile gpGlobalCntx(nullptr);
+
+//thread_local LocalCntx gLocalCntx;
+//thread_local LocalCntx* volatile gpLocalCntx(nullptr);
+#endif//]
 
 
 
@@ -147,11 +150,7 @@ LocalCntx* LocalCntxPtr() noexcept
 	if (pLocalCntx){
 		return pLocalCntx;
 	} else {
-		std::call_once(gbLocalCntx, [](){
-			new(&gLocalCntx) LocalCntx(true);
-		});
-		
-		while (!gpLocalCntx) std::this_thread::yield();
+		new(&gLocalCntx) LocalCntx(true);
 		return gpLocalCntx;
 	}
 }

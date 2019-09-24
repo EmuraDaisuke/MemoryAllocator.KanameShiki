@@ -37,6 +37,7 @@ LocalCntx::~LocalCntx() noexcept
 		
 		mReserver.Destruct();
 		
+		assert(gpLocalCntx);
 		gpLocalCntx = nullptr;
 		
 		#if KANAMESHIKI_DEBUG_LEVEL//[
@@ -53,6 +54,7 @@ LocalCntx::LocalCntx(bool bInit)
 ,mReserver(true)
 {
 	if (gvLocalCntx++ == 0){
+		assert(!gpLocalCntx);
 		gpLocalCntx = this;
 		
 		#if KANAMESHIKI_DEBUG_LEVEL//[
