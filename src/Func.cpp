@@ -86,8 +86,7 @@ GlobalCntx* GlobalCntxPtr() noexcept
 	if (pGlobalCntx){
 		return pGlobalCntx;
 	} else {
-		gpGlobalCntx = &gGlobalCntx;
-		new(gpGlobalCntx) GlobalCntx(true);
+		new(&gGlobalCntx) GlobalCntx(true);
 		return gpGlobalCntx;
 	}
 }

@@ -26,17 +26,25 @@ GlobalCntx::~GlobalCntx() noexcept
 	
 	mReserver.Destruct();
 	mHeap.Destruct();
+	
+	assert(gpGlobalCntx);
+	gpGlobalCntx = nullptr;
 }
 
 
 
 GlobalCntx::GlobalCntx(bool bInit)
-:mHeap(csHeap)
-,mnRevolver(std::thread::hardware_concurrency())
-,mbRevolver((mnRevolver)? Lzc::Msb(mnRevolver + mnRevolver - 1):0)
-,msReserver(bit(cbMemory - mbRevolver - cbFrac))
-,mReserver(mbRevolver)
 {
+	new(&mHeap) GlobalHeap(csHeap);
+	
+	mnRevolver = std::thread::hardware_concurrency();
+	mbRevolver = (mnRevolver)? Lzc::Msb(mnRevolver + mnRevolver - 1):0;
+	msReserver = bit(cbMemory - mbRevolver - cbFrac);
+	
+	assert(!gpGlobalCntx);
+	gpGlobalCntx = this;
+	
+	new(&mReserver) GlobalReserver(mbRevolver);
 }
 
 
