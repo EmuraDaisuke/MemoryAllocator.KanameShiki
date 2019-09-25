@@ -38,6 +38,7 @@ GlobalCntx::GlobalCntx(bool bInit)
 	new(&mHeap) GlobalHeap(csHeap);
 	
 	mnRevolver = std::thread::hardware_concurrency();
+	mnRevolver += mnRevolver;
 	mbRevolver = (mnRevolver)? Lzc::Msb(mnRevolver + mnRevolver - 1):0;
 	msReserver = bit(cbMemory - mbRevolver - cbFrac);
 	
