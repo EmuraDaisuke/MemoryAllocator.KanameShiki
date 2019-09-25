@@ -221,7 +221,7 @@ cl -DNDEBUG -DJEMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:JeMalloc.exe jemalloc.lib
 
 ## Linux
 ### **g++**
-準備
+**準備**
 ~~~
 g++ -DNDEBUG Main.cpp CLog.cpp -O3 -lpthread -latomic -o Malloc_g.exe
 ~~~
@@ -244,7 +244,7 @@ export LD_PRELOAD=
 ~~~
 
 ### **clang++**
-準備
+**準備**
 ~~~
 clang++ -DNDEBUG Main.cpp CLog.cpp -std=c++14 -O3 -lpthread -latomic -o Malloc_c.exe
 ~~~
