@@ -5,20 +5,11 @@ using namespace KanameShiki;
 
 
 
-#ifdef _WIN32//[
-#pragma init_seg(lib)
 static GlobalCntx gGlobalCntx;
 static GlobalCntx* volatile gpGlobalCntx(nullptr);
 
 thread_local LocalCntx gLocalCntx;
 thread_local LocalCntx* volatile gpLocalCntx(nullptr);
-#else//][
-static GlobalCntx __attribute__((init_priority(101))) gGlobalCntx;
-static GlobalCntx* volatile gpGlobalCntx(nullptr);
-
-thread_local LocalCntx gLocalCntx;
-thread_local LocalCntx* volatile gpLocalCntx(nullptr);
-#endif//]
 
 
 

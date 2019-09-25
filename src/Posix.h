@@ -35,10 +35,12 @@ extern "C" {
 
 
 
+#if !_WIN32//[
 void *malloc(size_t size) MALLOC_THROW;
 void free(void *ptr) FREE_THROW;
 void *calloc(size_t nmemb, size_t size) CALLOC_THROW;
 void *realloc(void *ptr, size_t size) REALLOC_THROW;
+#endif//]
 
 int posix_memalign(void **memptr, size_t alignment, size_t size) POSIX_MEMALIGN_THROW;
 void *aligned_alloc(size_t alignment, size_t size) ALIGNED_ALLOC_THROW;
