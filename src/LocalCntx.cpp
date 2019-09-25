@@ -20,29 +20,33 @@ uint64_t NumLocalCntx() noexcept
 
 LocalCntx::~LocalCntx() noexcept
 {
-	if (gvLocalCntx && --gvLocalCntx == 0){
-		for (Auto pPool : mapPool){
-			if (pPool){
-				pPool->Clearance();
-				if (pPool->Closed()) pPool->Delete();
+	if (gpLocalCntx){
+		if (--gvLocalCntx == 0){
+			for (Auto pPool : mapPool){
+				if (pPool){
+					pPool->Clearance();
+					if (pPool->Closed()) pPool->Delete();
+				}
 			}
-		}
-		
-		for (Auto pCram : mapCram){
-			if (pCram){
-				pCram->Clearance();
-				if (pCram->Closed()) pCram->Delete();
+			
+			for (Auto pCram : mapCram){
+				if (pCram){
+					pCram->Clearance();
+					if (pCram->Closed()) pCram->Delete();
+				}
 			}
+			
+			mReserver.Destruct();
+			
+			assert(gpLocalCntx);
+			gpLocalCntx = nullptr;
+			
+			#if KANAMESHIKI_DEBUG_LEVEL//[
+			gnLocalCntx.fetch_sub(1, std::memory_order_acq_rel);
+			#endif//]
+		} else {
+			this->~LocalCntx();
 		}
-		
-		mReserver.Destruct();
-		
-		assert(gpLocalCntx);
-		gpLocalCntx = nullptr;
-		
-		#if KANAMESHIKI_DEBUG_LEVEL//[
-		gnLocalCntx.fetch_sub(1, std::memory_order_acq_rel);
-		#endif//]
 	}
 }
 
