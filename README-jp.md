@@ -16,7 +16,7 @@
 * 高効率なメモリーの活用
 * 高効率な HardwareCache の活用
 * スレッドスケーラブル
-* 軽量なソースコード（総量45KB、行数2500）
+* 軽量なソースコード（総量50KB、行数2700）
 
 <br>
 
@@ -55,7 +55,6 @@ testA ～ testI まで、9種類のテストを行った累計です。
 <br>
 
 # 解説
-
 ## 高速化の要因
 以下の問題を起こさない、又は克服する、或いは軽減することにより、高速化を実現します。  
 * atomic fighting 問題
@@ -150,12 +149,28 @@ GlobalReserver からの割り当て要求と開放要求を処理します。
 
 <br>
 
-# ビルド＆テスト
+# ビルド
+## Windows
+### **Msvc**
+~~~
+./build_m.bat
+~~~
 
-## **Msvc**
-Microsoft(R) C/C++ Optimizing Compiler Version 19.16.27034 for x64  
+## Linux
+### **g++**
+~~~
+bash ./build_g.sh
+~~~
 
-追加のコンパイルオプション  
+### **clang++**
+~~~
+bash ./build_c.sh
+~~~
+
+<br>
+
+# テスト
+共通の、追加のコンパイルオプション  
 ~~~
 -DCATEGORY=0～4
 0 or undefined : 0B～32MiB
@@ -169,14 +184,16 @@ Microsoft(R) C/C++ Optimizing Compiler Version 19.16.27034 for x64
 1 : Memory Fill & Strick Check
 ~~~
 
+## Windows
+### **Msvc**
 **領式（特化型）**  
 ~~~
-cl -DNDEBUG -DKANAMESHIKI -DKANAMESHIKI_HEAP_SPECIALIZATION=1 Main.cpp CLog.cpp src/KanameShiki.cpp -Ox -EHsc -Fe:KanameShiki1.exe
+cl -DNDEBUG -DKANAMESHIKI Main.cpp CLog.cpp -Ox -EHsc -Fe:KanameShiki1.exe KanameShiki1.lib
 ./KanameShiki1.exe
 ~~~
 **領式（協調型）**  
 ~~~
-cl -DNDEBUG -DKANAMESHIKI -DKANAMESHIKI_HEAP_SPECIALIZATION=0 Main.cpp CLog.cpp src/KanameShiki.cpp -Ox -EHsc -Fe:KanameShiki0.exe
+cl -DNDEBUG -DKANAMESHIKI Main.cpp CLog.cpp -Ox -EHsc -Fe:KanameShiki0.exe KanameShiki0.lib
 ./KanameShiki0.exe
 ~~~
 **malloc**  
@@ -185,7 +202,7 @@ cl -DNDEBUG Main.cpp CLog.cpp -Ox -EHsc -Fe:Malloc.exe
 ./Malloc.exe
 ~~~
 
-### **ご自身で環境を整えられる方向け**
+#### **ご自身で環境を整えられる方向け**
 **mimalloc**（ビルドした環境に依存する為、別環境でビルドした mimalloc.lib をリンクしようとした場合、リンクエラーが発生する場合があります）  
 ~~~
 cl -DNDEBUG -DMIMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:MiMalloc.exe mimalloc.lib advapi32.lib -MD -link -LTCG
@@ -202,33 +219,61 @@ cl -DNDEBUG -DJEMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:JeMalloc.exe jemalloc.lib
 ./JeMalloc.exe
 ~~~
 
+## Linux
+### **g++**
+準備
+~~~
+g++ -DNDEBUG Main.cpp CLog.cpp -O3 -lpthread -latomic -o Malloc_g.exe
+~~~
+**領式（特化型）**  
+~~~
+export LD_PRELOAD=./KanameShiki1_g.so
+./Malloc_g.exe
+export LD_PRELOAD=
+~~~
+**領式（協調型）**  
+~~~
+export LD_PRELOAD=./KanameShiki0_g.so
+./Malloc_g.exe
+export LD_PRELOAD=
+~~~
+**malloc**  
+~~~
+export LD_PRELOAD=
+./Malloc_g.exe
+~~~
+
+### **clang++**
+準備
+~~~
+clang++ -DNDEBUG Main.cpp CLog.cpp -std=c++14 -O3 -lpthread -latomic -o Malloc_c.exe
+~~~
+**領式（特化型）**  
+~~~
+export LD_PRELOAD=./KanameShiki1_c.so
+./Malloc_c.exe
+export LD_PRELOAD=
+~~~
+**領式（協調型）**  
+~~~
+export LD_PRELOAD=./KanameShiki0_c.so
+./Malloc_c.exe
+export LD_PRELOAD=
+~~~
+**malloc**  
+~~~
+export LD_PRELOAD=
+./Malloc_c.exe
+~~~
+
 <br>
 
 # 余談
 如何だったでしょうか？  
 
-仮想マシン上の debian ではありますが、g++ と clang++ での動作を確認しています。  
-今後の課題としては、LD_PRELOAD 対応が挙げられます。  
-少しチャレンジしてみたのですが、中々一筋縄ではいかないようで、どなたかご助言、ご助力頂けると有難いです。  
-
-debian 環境は以下の通りです。  
-*  gcc version 6.3.0 20170516 (Debian 6.3.0-18+deb9u1)
-*  clang version 3.8.1-24 (tags/RELEASE_381/final)
-
-<br>
-
-又、Mingw64 の g++ と clang++ では、動作しない事を確認しています。  
-Mingw64 の g++ は、スレッドの破棄タイミングが異常で、正常に終了できません。  
+残念なことに、Mingw64 の g++ と clang++ では、動作しない事を確認しています。  
+Mingw64 の g++ は、スレッドの破棄タイミングが異常な為、正常に終了できません。  
 Mingw64 の clang++ は、thread_local が POD 型しか対応しておらず、コンパイルが通りません。  
-こちらも、ご助言、ご助力頂けると有難いです。  
-
-Mingw64 環境は以下の通りです。  
-* gcc version 9.2.0 (Rev2, Built by MSYS2 project)
-* clang version 8.0.1 (tags/RELEASE_801/final)
-
-<br>
-
-以上、宜しくお願い致します。  
 
 ---
-もし、高速なソートアルゴリズムに興味あれば、[颯式（はやてしき）](https://github.com/EmuraDaisuke/SortingAlgorithm.HayateShiki) もご覧ください。
+もし、高速な比較安定ソートアルゴリズムに興味あれば、[颯式（はやてしき）](https://github.com/EmuraDaisuke/SortingAlgorithm.HayateShiki) もご覧ください。

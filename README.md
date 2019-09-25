@@ -16,7 +16,7 @@ It has the following features.
 * Utilization of highly efficient memory
 * Utilization of highly efficient HardwareCache
 * Thread scalable
-* Light source code (total 45KB, 2500 lines)
+* Light source code (total 50KB, 2700 lines)
 
 <br>
 
@@ -150,12 +150,28 @@ Handles allocation and free requests from GlobalReserver.
 
 <br>
 
-# Build & Test
+# Build
+## Windows
+### **Msvc**
+~~~
+./build_m.bat
+~~~
 
-## **Msvc**
-Microsoft(R) C/C++ Optimizing Compiler Version 19.16.27034 for x64  
+## Linux
+### **g++**
+~~~
+bash ./build_g.sh
+~~~
 
-Additional compilation options  
+### **clang++**
+~~~
+bash ./build_c.sh
+~~~
+
+<br>
+
+# Test
+Common additional compilation options  
 ~~~
 -DCATEGORY=0～4
 0 or undefined : 0B～32MiB
@@ -169,14 +185,16 @@ Additional compilation options
 1 : Memory Fill & Strick Check
 ~~~
 
+## Windows
+### **Msvc**
 **Kaname-Shiki（特化型）**  
 ~~~
-cl -DNDEBUG -DKANAMESHIKI -DKANAMESHIKI_HEAP_SPECIALIZATION=1 Main.cpp CLog.cpp src/KanameShiki.cpp -Ox -EHsc -Fe:KanameShiki1.exe
+cl -DNDEBUG -DKANAMESHIKI Main.cpp CLog.cpp -Ox -EHsc -Fe:KanameShiki1.exe KanameShiki1.lib
 ./KanameShiki1.exe
 ~~~
 **Kaname-Shiki（協調型）**  
 ~~~
-cl -DNDEBUG -DKANAMESHIKI -DKANAMESHIKI_HEAP_SPECIALIZATION=0 Main.cpp CLog.cpp src/KanameShiki.cpp -Ox -EHsc -Fe:KanameShiki0.exe
+cl -DNDEBUG -DKANAMESHIKI Main.cpp CLog.cpp -Ox -EHsc -Fe:KanameShiki0.exe KanameShiki0.lib
 ./KanameShiki0.exe
 ~~~
 **malloc**  
@@ -202,33 +220,61 @@ cl -DNDEBUG -DJEMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:JeMalloc.exe jemalloc.lib
 ./JeMalloc.exe
 ~~~
 
+## Linux
+### **g++**
+Preparation
+~~~
+g++ -DNDEBUG Main.cpp CLog.cpp -O3 -lpthread -latomic -o Malloc_g.exe
+~~~
+**Kaname-Shiki（特化型）**  
+~~~
+export LD_PRELOAD=./KanameShiki1_g.so
+./Malloc_g.exe
+export LD_PRELOAD=
+~~~
+**Kaname-Shiki（協調型）**  
+~~~
+export LD_PRELOAD=./KanameShiki0_g.so
+./Malloc_g.exe
+export LD_PRELOAD=
+~~~
+**malloc**  
+~~~
+export LD_PRELOAD=
+./Malloc_g.exe
+~~~
+
+### **clang++**
+Preparation
+~~~
+clang++ -DNDEBUG Main.cpp CLog.cpp -std=c++14 -O3 -lpthread -latomic -o Malloc_c.exe
+~~~
+**Kaname-Shiki（特化型）**  
+~~~
+export LD_PRELOAD=./KanameShiki1_c.so
+./Malloc_c.exe
+export LD_PRELOAD=
+~~~
+**Kaname-Shiki（協調型）**  
+~~~
+export LD_PRELOAD=./KanameShiki0_c.so
+./Malloc_c.exe
+export LD_PRELOAD=
+~~~
+**malloc**  
+~~~
+export LD_PRELOAD=
+./Malloc_c.exe
+~~~
+
 <br>
 
 # Finally
-How was it?    
+How was it?  
 
-In debian on a virtual machine, it has been confirmed to work with g++ and clang++.  
-Future issues include LD_PRELOAD support.  
-I tried a little, but it doesn't seem to be straightforward, so I'd appreciate it if someone could give me advice and help.  
-
-The debian environment is as follows.  
-*  gcc version 6.3.0 20170516 (Debian 6.3.0-18+deb9u1)
-*  clang version 3.8.1-24 (tags/RELEASE_381/final)
-
-<br>
-
-Also, it has been confirmed that Mingw64 g++ and clang++ do not work.  
-Mingw64 g++ cannot terminate normally because the thread destruction timing is abnormal.  
+Unfortunately, Mingw64 g++ and clang++ have been confirmed not to work.  
+Mingw64 g++ cannot be terminated normally due to abnormal thread destruction timing.  
 Mingw64 clang++ doesn't compile because thread_local only supports POD type.  
-I would like to thank you for your advice and help.  
-
-The Mingw64 environment is as follows.  
-* gcc version 9.2.0 (Rev2, Built by MSYS2 project)
-* clang version 8.0.1 (tags/RELEASE_801/final)
-
-<br>
-
-Thank you for your cooperation.  
 
 ---
 If you are interested in a fast sorting algorithm, see [颯式（Hayate-Shiki）] (https://github.com/EmuraDaisuke/SortingAlgorithm.HayateShiki).
