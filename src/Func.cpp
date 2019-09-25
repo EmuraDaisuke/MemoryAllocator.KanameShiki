@@ -5,6 +5,7 @@ using namespace KanameShiki;
 
 
 
+static std::once_flag gbGlobalCntx;
 static GlobalCntx gGlobalCntx;
 static GlobalCntx* volatile gpGlobalCntx(nullptr);
 
@@ -76,7 +77,10 @@ GlobalCntx* GlobalCntxPtr() noexcept
 	if (pGlobalCntx){
 		return pGlobalCntx;
 	} else {
-		new(&gGlobalCntx) GlobalCntx(true);
+		std::call_once(gbGlobalCntx, [](){
+			new(&gGlobalCntx) GlobalCntx(true);
+		});
+		while (!gpGlobalCntx) std::this_thread::yield();
 		return gpGlobalCntx;
 	}
 }
