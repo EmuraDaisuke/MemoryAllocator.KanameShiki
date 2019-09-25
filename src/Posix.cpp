@@ -3,9 +3,6 @@
 
 #if !_WIN32//[
 #include <unistd.h>
-#if PRELOAD//[
-#include <dlfcn.h>
-#endif//]
 #endif//]
 
 
@@ -40,45 +37,14 @@ static bool IsPowerOf2(size_t alignment)
 
 void *malloc(size_t size) MALLOC_THROW
 {
-	#if !_WIN32 && PRELOAD//[
-	if (IsGlobalCntxBoot()){
-		return Alloc(size);
-	} else {
-		void *pFunc = dlsym(RTLD_NEXT, "malloc");
-		assert(pFunc);
-		if (pFunc){
-			using Func = void *(*)(size_t size);
-			return reinterpret_cast<Func>(pFunc)(size);
-		}
-		return nullptr;
-	}
-	#else//][
 	return Alloc(size);
-	#endif//]
 }
 
 
 
 void free(void *ptr) FREE_THROW
 {
-	#if !_WIN32 && PRELOAD//[
-	Auto pParcel = Parcel::CastParcel(ptr);
-	Auto pOwner = pParcel->Owner();
-	assert(pOwner);
-	
-	if (typeid(*pOwner) == typeid(Base)){
-		Free(ptr);
-	} else {
-		void *pFunc = dlsym(RTLD_NEXT, "free");
-		assert(pFunc);
-		if (pFunc){
-			using Func = void (*)(void *ptr);
-			reinterpret_cast<Func>(pFunc)(ptr);
-		}
-	}
-	#else//][
 	Free(ptr);
-	#endif//]
 }
 
 
@@ -112,21 +78,7 @@ int posix_memalign(void **memptr, size_t alignment, size_t size) POSIX_MEMALIGN_
 void *aligned_alloc(size_t alignment, size_t size) ALIGNED_ALLOC_THROW
 {
 	Auto bAlign = ((size & -size) >= alignment);
-	#if !_WIN32 && PRELOAD//[
-	if (IsGlobalCntxBoot()){
-		return (bAlign)? Align(alignment, size): nullptr;
-	} else {
-		void *pFunc = dlsym(RTLD_NEXT, "aligned_alloc");
-		assert(pFunc);
-		if (pFunc){
-			using Func = void *(*)(size_t alignment, size_t size);
-			return (bAlign)? reinterpret_cast<Func>(pFunc)(alignment, size): nullptr;
-		}
-		return nullptr;
-	}
-	#else//][
 	return (bAlign)? Align(alignment, size): nullptr;
-	#endif//]
 }
 
 
