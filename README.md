@@ -277,4 +277,4 @@ Mingw64 g++ cannot be terminated normally due to abnormal thread destruction tim
 Mingw64 clang++ doesn't compile because thread_local only supports POD type.  
 
 ---
-If you are interested in a fast sorting algorithm, see [颯式（Hayate-Shiki）] (https://github.com/EmuraDaisuke/SortingAlgorithm.HayateShiki).
+If you are interested in a fast comparative stable sorting algorithm, see [颯式（Hayate-Shiki）] (https://github.com/EmuraDaisuke/SortingAlgorithm.HayateShiki).
