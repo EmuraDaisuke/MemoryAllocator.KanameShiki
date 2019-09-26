@@ -150,6 +150,21 @@ Handles allocation and free requests from GlobalReserver.
 
 <br>
 
+# Features of cooperative(協調型) and specialized types(特化型)
+## Cooperative(協調型)
+This type is suitable for general-purpose OS applications.  
+* Secure small GlobalHeap size
+* Flexible memory with other running applications
+* SystemAlloc and SystemFree are increasing in number and tend to be slow
+
+## Specialized type(特化型)
+This type is suitable for embedded applications (such as game consoles).  
+* Ensure large GlobalHeap size
+* Occupies memory without considering other running applications
+* The number of SystemAlloc and SystemFree decreases, and it tends to be faster
+
+<br>
+
 # Build
 ## Windows
 ### **Msvc**
