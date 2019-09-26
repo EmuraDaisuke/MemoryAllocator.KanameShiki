@@ -1,4 +1,5 @@
 #!/bin/sh
+export LD_PRELOAD=
 CFLAG=""
 CFLAG+=" -DNDEBUG"
 CFLAG+=" -O3"
