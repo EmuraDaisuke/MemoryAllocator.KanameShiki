@@ -21,14 +21,14 @@ class GlobalReserver::Segment final {
 		
 		
 		
-		Segment(uint16_t nRevolver, uint32_t nReserver, uint16_t Realm)
-		:mRealm(Realm)
-		,ms(Tag::Size(Realm))
-		,mnAllocHeap(0)
-		,mnAllocVirtual(0)
-		,mnReserver(nReserver)
+		Segment(uint16_t nRevolver, uint16_t nReserver, uint16_t Realm)
+		:ms(Tag::Size(Realm))
+		,mRealm(Realm)
 		,mnRevolver(nRevolver)
 		,mmRevolver(nRevolver-1)
+		,mnReserver(nReserver)
+		,mnAllocHeap(0)
+		,mnAllocVirtual(0)
 		,moRevolverFree(0)
 		,moRevolverAlloc(0)
 		,maSpinlock(reinterpret_cast<decltype(maSpinlock)>(this+1))
@@ -128,7 +128,7 @@ class GlobalReserver::Segment final {
 		static void Unlock(std::atomic_flag& rFlag) noexcept	{ rFlag.clear(std::memory_order_release); }
 		
 		Reserver* ReserverArray(uint16_t oRevolver) noexcept	{ return &maaReserver[mnReserver * oRevolver]; }
-		uint32_t& ReserverOffset(uint16_t oRevolver) noexcept	{ return maoReserver[oRevolver].o; }
+		uint16_t& ReserverOffset(uint16_t oRevolver) noexcept	{ return maoReserver[oRevolver].o; }
 		
 		
 		
@@ -192,19 +192,19 @@ class GlobalReserver::Segment final {
 			void* p;
 		};
 		struct Offset {
-			uint32_t o;
+			uint16_t o;
 		};
 		
-		const uint16_t mRealm;
 		const std::size_t ms;
+		const uint16_t mRealm;
+		
+		const uint16_t mnRevolver;
+		const uint16_t mmRevolver;
+		const uint16_t mnReserver;
 		
 		alignas(csCacheLine) std::atomic_int64_t mnAllocHeap;
 		alignas(csCacheLine) std::atomic_int64_t mnAllocVirtual;
 		
-		const uint32_t mnReserver;
-		
-		const uint16_t mnRevolver;
-		const uint16_t mmRevolver;
 		alignas(csCacheLine) std::atomic_uint16_t moRevolverFree;
 		alignas(csCacheLine) std::atomic_uint16_t moRevolverAlloc;
 		
@@ -275,6 +275,16 @@ void* GlobalReserver::Alloc(std::size_t s) noexcept
 	
 	Release();
 	return pSegment->Alloc();
+}
+
+
+
+uint16_t GlobalReserver::NumReserver(uint16_t Realm) const noexcept
+{
+	Auto sReserver = bit(cbMemory - cbFrac);
+	Auto Ratio = sReserver / Tag::Size(Realm);
+	Auto nReserver = Lzc::Msb(Ratio) + 1;
+	return nReserver;
 }
 
 

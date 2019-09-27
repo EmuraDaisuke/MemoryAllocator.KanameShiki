@@ -86,7 +86,7 @@ void* LocalCntx::ReserverAlloc(std::size_t s) noexcept
 void* LocalCntx::Alloc(std::size_t s) noexcept
 {
 	if (s <= csPool){
-		Auto o = s >> cbSizeT;
+		Auto o = ((s)? s-1: s) >> cbSizeT;
 		Auto pPool = mapPool[o];
 		return (pPool)? pPool->Alloc(): NewPool(o);
 	} else if (s <= csCram){

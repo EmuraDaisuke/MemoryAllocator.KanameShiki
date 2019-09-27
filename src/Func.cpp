@@ -128,13 +128,6 @@ void* GlobalReserverAlloc(std::size_t s) noexcept
 
 
 
-uint32_t NumReserver(uint16_t Realm) noexcept
-{
-	return GlobalCntxPtr()->NumReserver(Realm);
-}
-
-
-
 // Local
 
 LocalCntx* LocalCntxPtr() noexcept

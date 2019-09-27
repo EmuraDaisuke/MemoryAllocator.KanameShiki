@@ -16,7 +16,7 @@ class LocalReserver::Segment final {
 		
 		
 		
-		Segment(uint32_t nReserver, uint16_t Realm)
+		Segment(uint16_t nReserver, uint16_t Realm)
 		:ms(Tag::Size(Realm))
 		,mnReserver(nReserver)
 		,moReserver(0)
@@ -80,9 +80,9 @@ class LocalReserver::Segment final {
 		
 		const std::size_t ms;
 		
-		const uint32_t mnReserver;
+		const uint16_t mnReserver;
 		
-		uint32_t moReserver;
+		uint16_t moReserver;
 		Reserver* const maReserver;
 };
 
@@ -146,6 +146,16 @@ void* LocalReserver::Alloc(std::size_t s) noexcept
 	
 	Release();
 	return pSegment->Alloc();
+}
+
+
+
+uint16_t LocalReserver::NumReserver(uint16_t Realm) const noexcept
+{
+	Auto sReserver = bit(cbVirtual - 1);
+	Auto Ratio = sReserver / Tag::Size(Realm);
+	Auto nReserver = Lzc::Msb(Ratio) + 1;
+	return nReserver;
 }
 
 

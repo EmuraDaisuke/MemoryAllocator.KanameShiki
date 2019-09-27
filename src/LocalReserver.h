@@ -21,6 +21,8 @@ class LocalReserver final : private NonCopyable<LocalReserver> {
 	
 	private:
 		class Segment;
+		
+		uint16_t NumReserver(uint16_t Realm) const noexcept;
 	
 	
 	private:

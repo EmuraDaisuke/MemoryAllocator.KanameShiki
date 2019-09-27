@@ -18,8 +18,6 @@ void GlobalReserverRelease() noexcept;
 void GlobalReserverFree(void* p) noexcept;
 void* GlobalReserverAlloc(std::size_t s) noexcept;
 
-uint32_t NumReserver(uint16_t Realm) noexcept;
-
 // Local
 void LocalReserverFree(void* p) noexcept;
 void* LocalReserverAlloc(std::size_t s) noexcept;

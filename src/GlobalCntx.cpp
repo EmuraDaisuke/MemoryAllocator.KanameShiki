@@ -37,15 +37,13 @@ GlobalCntx::GlobalCntx(bool bInit)
 {
 	new(&mHeap) GlobalHeap(csHeap);
 	
-	mnRevolver = std::thread::hardware_concurrency();
-	mnRevolver += mnRevolver;
-	mbRevolver = (mnRevolver)? Lzc::Msb(mnRevolver + mnRevolver - 1):0;
-	msReserver = bit(cbMemory - mbRevolver - cbFrac);
+	mnRevolver = std::thread::hardware_concurrency() + 1;
+	mbRevolver = Lzc::Msb(mnRevolver + mnRevolver - 1);
 	
 	assert(!gpGlobalCntx);
 	gpGlobalCntx = this;
 	
-	new(&mReserver) GlobalReserver(mbRevolver);
+	new(&mReserver) GlobalReserver(mbRevolver + 1);
 }
 
 
@@ -82,15 +80,6 @@ void GlobalCntx::ReserverFree(void* p) noexcept
 void* GlobalCntx::ReserverAlloc(std::size_t s) noexcept
 {
 	return mReserver.Alloc(s);
-}
-
-
-
-uint32_t GlobalCntx::NumReserver(uint16_t Realm) const noexcept
-{
-	Auto Ratio = msReserver / Tag::Size(Realm);
-	Auto nReserver = Lzc::Msb(Ratio) + 1;
-	return nReserver;
 }
 
 

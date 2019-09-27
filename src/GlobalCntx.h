@@ -19,8 +19,6 @@ class GlobalCntx final : private NonCopyable<GlobalCntx> {
 		void ReserverRelease() noexcept;
 		void ReserverFree(void* p) noexcept;
 		void* ReserverAlloc(std::size_t s) noexcept;
-		
-		uint32_t NumReserver(uint16_t Realm) const noexcept;
 	
 	
 	private:
@@ -28,7 +26,6 @@ class GlobalCntx final : private NonCopyable<GlobalCntx> {
 		
 		uint32_t mnRevolver;
 		uint32_t mbRevolver;
-		std::size_t msReserver;
 		GlobalReserver mReserver;
 };
 

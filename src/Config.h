@@ -60,13 +60,15 @@ static constexpr Auto cnCramParcel = bit(cbCramParcel);
 
 
 // 
-#if KANAMESHIKI_HEAP_SPECIALIZATION//[
 static constexpr std::size_t cbVirtual = (cbCram + cbCramParcel)+1;
 static constexpr std::size_t csVirtual = bit(cbVirtual);
 
+
+// 
+#if KANAMESHIKI_HEAP_SPECIALIZATION//[
 static constexpr std::size_t cbHeap = /*GiB*/30 + /*8*/3;		// 8GiB
 #else//][
-static constexpr std::size_t cbHeap = /*MiB*/20 + /*2*/1;		// 2MiB
+static constexpr std::size_t cbHeap = /*MiB*/20 + /*8*/3;		// 8MiB
 #endif//]
 static constexpr std::size_t csHeap = bit(cbHeap);
 
