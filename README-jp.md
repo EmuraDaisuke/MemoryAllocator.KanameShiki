@@ -242,19 +242,14 @@ g++ -DNDEBUG Main.cpp CLog.cpp -O3 -lpthread -latomic -o Malloc_g.exe
 ~~~
 **領式（特化型）**  
 ~~~
-export LD_PRELOAD=./KanameShiki1_g.so
-./Malloc_g.exe
-export LD_PRELOAD=
+LD_PRELOAD=./KanameShiki1_g.so ./Malloc_g.exe
 ~~~
 **領式（協調型）**  
 ~~~
-export LD_PRELOAD=./KanameShiki0_g.so
-./Malloc_g.exe
-export LD_PRELOAD=
+LD_PRELOAD=./KanameShiki0_g.so ./Malloc_g.exe
 ~~~
 **malloc**  
 ~~~
-export LD_PRELOAD=
 ./Malloc_g.exe
 ~~~
 
@@ -265,19 +260,14 @@ clang++ -DNDEBUG Main.cpp CLog.cpp -std=c++14 -O3 -lpthread -latomic -o Malloc_c
 ~~~
 **領式（特化型）**  
 ~~~
-export LD_PRELOAD=./KanameShiki1_c.so
-./Malloc_c.exe
-export LD_PRELOAD=
+LD_PRELOAD=./KanameShiki1_c.so ./Malloc_c.exe
 ~~~
 **領式（協調型）**  
 ~~~
-export LD_PRELOAD=./KanameShiki0_c.so
-./Malloc_c.exe
-export LD_PRELOAD=
+LD_PRELOAD=./KanameShiki0_c.so ./Malloc_c.exe
 ~~~
 **malloc**  
 ~~~
-export LD_PRELOAD=
 ./Malloc_c.exe
 ~~~
 
