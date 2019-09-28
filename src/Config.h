@@ -7,7 +7,7 @@ namespace KanameShiki {
 
 
 #ifndef NDEBUG//[
-#define KANAMESHIKI_DEBUG_LEVEL 2	// 0:Disable 1:Loose 2:Strict
+#define KANAMESHIKI_DEBUG_LEVEL 1	// 0:Disable 1:Loose 2:Strict
 // The timing at which the thread instance is actually deleted seems to vary depending on the development environment.
 // There seems to be a case where an excessively created thread of unknown cause leaks apart from the thread explicitly created by the application.
 #endif//]

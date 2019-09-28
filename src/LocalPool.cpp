@@ -31,8 +31,7 @@ LocalPool::LocalPool(LocalCntx* pOwner, uint16_t o)
 :mId(std::this_thread::get_id())
 ,mpOwner(pOwner)
 ,mo(o)
-,mpCacheST(nullptr)
-,mpCacheMT(nullptr)
+,mParallel{}
 ,mbCache(true)
 ,mnCache(cnPoolParcel)
 {
@@ -45,7 +44,7 @@ LocalPool::LocalPool(LocalCntx* pOwner, uint16_t o)
 	Auto vParcel = align_t(to_t(this+1) + sParcelT, csAlign) - sParcelT;
 	for (auto n = mnCache.load(std::memory_order_acquire); n; --n){
 		Auto pParcel = reinterpret_cast<Parcel*>(vParcel);
-		CacheST(pParcel);
+		mParallel.CacheST(pParcel);
 		vParcel += sParcelS;
 	}
 	
@@ -67,9 +66,9 @@ void LocalPool::Free(Parcel* pParcel) noexcept
 {
 	if (mbCache.load(std::memory_order_acquire)){
 		if (mId == std::this_thread::get_id()){
-			CacheST(pParcel); return;
+			mParallel.CacheST(pParcel); return;
 		} else {
-			if (CacheMT(pParcel)) return;
+			if (mParallel.CacheMT(pParcel)) return;
 		}
 	}
 	if (DecCache() == 0) Delete();
@@ -79,14 +78,17 @@ void LocalPool::Free(Parcel* pParcel) noexcept
 
 void* LocalPool::Alloc() noexcept
 {
-	Auto pParcel = mpCacheST;
+	auto& rCacheST = mParallel.mCacheST;
+	Auto pParcel = rCacheST.p;
 	if (pParcel){
-		mpCacheST = pParcel->Alloc(this);
+		rCacheST.p = pParcel->Alloc(this);
 		return pParcel->CastData();
 	} else {
-		pParcel = mpCacheMT.exchange(nullptr, std::memory_order_acq_rel);
+		Auto oRevolver = mParallel.mRevolverAlloc.o & mParallel.RevolverMask();
+		pParcel = mParallel.maCacheMT[oRevolver].p.exchange(nullptr, std::memory_order_acq_rel);
 		if (pParcel){
-			mpCacheST = pParcel->Alloc(this);
+			mParallel.mRevolverAlloc.o = ++oRevolver;
+			rCacheST.p = pParcel->Alloc(this);
 			return pParcel->CastData();
 		} else {
 			Clearance();
@@ -99,16 +101,10 @@ void* LocalPool::Alloc() noexcept
 
 void LocalPool::Clearance() noexcept
 {
-	int16_t nCache = 0;
-	
-	Auto pParcel = mpCacheST;
-	for (; pParcel; pParcel = pParcel->Alloc(nullptr), ++nCache);
-	
-	pParcel = mpCacheMT.exchange(Parcel::cpInvalid, std::memory_order_acq_rel);
-	for (; pParcel; pParcel = pParcel->Alloc(nullptr), ++nCache);
-	
-	mnCache.fetch_sub(nCache, std::memory_order_acq_rel);
 	mbCache.store(false, std::memory_order_release);
+	
+	Auto nCache = mParallel.Clearance();
+	mnCache.fetch_sub(nCache, std::memory_order_acq_rel);
 }
 
 
@@ -146,27 +142,7 @@ void* LocalPool::operator new(std::size_t sThis, uint16_t o, const std::nothrow_
 
 
 
-void LocalPool::CacheST(Parcel* pParcel) noexcept
-{
-	pParcel->Free(mpCacheST);
-	mpCacheST = pParcel;
-}
-
-
-
-bool LocalPool::CacheMT(Parcel* pParcel) noexcept
-{
-	Auto pCacheMT = mpCacheMT.load(std::memory_order_acquire);
-	while (pCacheMT != Parcel::cpInvalid){
-		pParcel->Free(pCacheMT);
-		if (mpCacheMT.compare_exchange_strong(pCacheMT, pParcel, std::memory_order_acq_rel, std::memory_order_acquire)) return true;
-	}
-	return false;
-}
-
-
-
-int16_t LocalPool::DecCache() noexcept
+uint16_t LocalPool::DecCache() noexcept
 {
 	return mnCache.fetch_sub(1, std::memory_order_acq_rel) - 1;
 }

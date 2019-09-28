@@ -42,6 +42,7 @@ using atomic_uint64_t = atomic<uint64_t>;
 #include "./Base.h"
 #include "./Parcel.h"
 #include "./Relay.h"
+#include "./Parallel.h"
 
 #include "./LocalPool.h"
 #include "./LocalCram.h"

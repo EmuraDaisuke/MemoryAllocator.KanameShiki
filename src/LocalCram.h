@@ -31,20 +31,13 @@ class LocalCram final : public Base, private NonCopyable<LocalCram> {
 		void operator delete(void* p) noexcept										{ assert(false); }
 	
 	private:
+		uint16_t DecCache() noexcept;
+		
 		void CacheST(Parcel* pParcel) noexcept;
 		bool CacheMT(Parcel* pParcel) noexcept;
-		
-		int16_t DecCache() noexcept;
 	
 	
 	private:
-		struct Cache {
-			Parcel* p;
-		};
-		struct alignas(csCacheLine) ACache {
-			std::atomic<Parcel*> p;
-		};
-		
 		std::thread::id mId;
 		LocalCntx* mpOwner;
 		uint16_t mb;
@@ -53,11 +46,10 @@ class LocalCram final : public Base, private NonCopyable<LocalCram> {
 		std::size_t mvParcel;
 		std::size_t meParcel;
 		
-		std::array<Cache, cnFrac+1> maCacheST;
-		std::array<ACache, cnFrac+1> maCacheMT;
+		std::array<Parallel<cnCramParcel>, cnFrac+1> maParallel;
 		
 		alignas(csCacheLine) std::atomic_bool mbCache;
-		alignas(csCacheLine) std::atomic_int16_t mnCache;
+		alignas(csCacheLine) std::atomic_uint16_t mnCache;
 };
 
 

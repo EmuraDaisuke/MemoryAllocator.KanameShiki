@@ -34,8 +34,7 @@ LocalCram::LocalCram(LocalCntx* pOwner, uint16_t b)
 ,mRealm(Tag::Realm(bit(b)))
 ,mvParcel(to_t(this+1))
 ,meParcel(mvParcel + (bit(b) * cnCramParcel))
-,maCacheST{}
-,maCacheMT{}
+,maParallel{}
 ,mbCache(true)
 ,mnCache(0)
 {
@@ -76,17 +75,18 @@ void* LocalCram::Alloc(std::size_t s) noexcept
 	Auto RealmS = Tag::Realm(s);
 	Auto RealmT = RealmS - mRealm;
 	
-	assert(RealmT < numof(maCacheST));
-	auto& rCacheST = maCacheST[RealmT];
+	assert(RealmT < numof(maParallel));
+	auto& rParallel = maParallel[RealmT];
+	auto& rCacheST = rParallel.mCacheST;
 	Auto pParcel = rCacheST.p;
 	if (pParcel){
 		rCacheST.p = pParcel->Alloc(this);
 		return pParcel->CastData();
 	} else {
-		assert(RealmT < numof(maCacheMT));
-		auto& rCacheMT = maCacheMT[RealmT];
-		pParcel = rCacheMT.p.exchange(nullptr, std::memory_order_acq_rel);
+		Auto oRevolver = rParallel.mRevolverAlloc.o & rParallel.RevolverMask();
+		pParcel = rParallel.maCacheMT[oRevolver].p.exchange(nullptr, std::memory_order_acq_rel);
 		if (pParcel){
+			rParallel.mRevolverAlloc.o = ++oRevolver;
 			rCacheST.p = pParcel->Alloc(this);
 			return pParcel->CastData();
 		} else {
@@ -110,8 +110,10 @@ void* LocalCram::Alloc(std::size_t s) noexcept
 				}
 				
 				mnCache.fetch_add(1, std::memory_order_acq_rel);
+				assert(mnCache.load(std::memory_order_acquire) <= cnCramParcel);
 				return p;
 			} else {
+				assert(mnCache.load(std::memory_order_acquire));
 				Clearance();
 				return mpOwner->NewCram(mb, s);
 			}
@@ -123,20 +125,11 @@ void* LocalCram::Alloc(std::size_t s) noexcept
 
 void LocalCram::Clearance() noexcept
 {
-	int16_t nCache = 0;
-	
-	for (auto& rCacheST : maCacheST){
-		Auto pParcel = rCacheST.p;
-		for (; pParcel; pParcel = pParcel->Alloc(nullptr), ++nCache);
-	}
-	
-	for (auto& rCacheMT : maCacheMT){
-		Auto pParcel = rCacheMT.p.exchange(Parcel::cpInvalid, std::memory_order_acq_rel);
-		for (; pParcel; pParcel = pParcel->Alloc(nullptr), ++nCache);
-	}
-	
-	mnCache.fetch_sub(nCache, std::memory_order_acq_rel);
 	mbCache.store(false, std::memory_order_release);
+	
+	uint16_t nCache = 0;
+	for (auto& rParallel : maParallel) nCache += rParallel.Clearance();
+	mnCache.fetch_sub(nCache, std::memory_order_acq_rel);
 }
 
 
@@ -171,15 +164,20 @@ void* LocalCram::operator new(std::size_t sThis, uint16_t b, const std::nothrow_
 
 
 
+uint16_t LocalCram::DecCache() noexcept
+{
+	return mnCache.fetch_sub(1, std::memory_order_acq_rel) - 1;
+}
+
+
+
 void LocalCram::CacheST(Parcel* pParcel) noexcept
 {
 	Auto pTag = Tag::CastTag(pParcel);
 	Auto RealmT = pTag->Realm();
 	
-	assert(RealmT < numof(maCacheST));
-	auto& rCacheST = maCacheST[RealmT];
-	pParcel->Free(rCacheST.p);
-	rCacheST.p = pParcel;
+	assert(RealmT < numof(maParallel));
+	maParallel[RealmT].CacheST(pParcel);
 }
 
 
@@ -189,21 +187,8 @@ bool LocalCram::CacheMT(Parcel* pParcel) noexcept
 	Auto pTag = Tag::CastTag(pParcel);
 	Auto RealmT = pTag->Realm();
 	
-	assert(RealmT < numof(maCacheMT));
-	auto& rCacheMT = maCacheMT[RealmT];
-	Auto pCacheMT = rCacheMT.p.load(std::memory_order_acquire);
-	while (pCacheMT != Parcel::cpInvalid){
-		pParcel->Free(pCacheMT);
-		if (rCacheMT.p.compare_exchange_strong(pCacheMT, pParcel, std::memory_order_acq_rel, std::memory_order_acquire)) return true;
-	}
-	return false;
-}
-
-
-
-int16_t LocalCram::DecCache() noexcept
-{
-	return mnCache.fetch_sub(1, std::memory_order_acq_rel) - 1;
+	assert(RealmT < numof(maParallel));
+	return maParallel[RealmT].CacheMT(pParcel);
 }
 
 

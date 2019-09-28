@@ -31,10 +31,7 @@ class LocalPool final : public Base, private NonCopyable<LocalPool> {
 		void operator delete(void* p) noexcept										{ assert(false); }
 	
 	private:
-		void CacheST(Parcel* pParcel) noexcept;
-		bool CacheMT(Parcel* pParcel) noexcept;
-		
-		int16_t DecCache() noexcept;
+		uint16_t DecCache() noexcept;
 	
 	
 	private:
@@ -42,11 +39,10 @@ class LocalPool final : public Base, private NonCopyable<LocalPool> {
 		LocalCntx* mpOwner;
 		uint16_t mo;
 		
-		Parcel* mpCacheST;
-		alignas(csCacheLine) std::atomic<Parcel*> mpCacheMT;
+		Parallel<cnPoolParcel> mParallel;
 		
 		alignas(csCacheLine) std::atomic_bool mbCache;
-		alignas(csCacheLine) std::atomic_int16_t mnCache;
+		alignas(csCacheLine) std::atomic_uint16_t mnCache;
 };
 
 
