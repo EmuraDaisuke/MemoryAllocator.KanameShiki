@@ -5,7 +5,7 @@ It has the following features.
 * Fast allocation and free of any size
 * Fast Cache mechanism (own thread FreeList and other thread FreeList)
   * At the time of own thread FreeList operation, no atomic operation, no CAS operation (Lock-Free & Wait-Free)
-  * Use RevolverCAS when working with other thread FreeList (Lock-Free, !Wait-Free)
+  * Use RevolverAtomic when working with other thread FreeList (Lock-Free, !Wait-Free)
   * Use own-threaded FreeList preferentially
 * Fast Reserver mechanism (local FreeList and global FreeList)
   * When operating with local FreeList, no atomic operation, no CAS operation (Lock-Free & Wait-Free)
@@ -75,19 +75,19 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 
 ### Allocation
 * When an allocation request comes, the area is taken out from its own thread FreeList and returned to the application
-* If the own thread FreeList is empty, allocation is performed from the other thread FreeList (RevolverCAS)
+* If the own thread FreeList is empty, allocation is performed from the other thread FreeList (RevolverAtomic)
 * If other thread FreeList is empty, entrust processing to the allocator that has the Cache mechanism
 
 ### Free
 * Free performed in its own thread holds the area in its own thread FreeList
-* Free performed in another thread holds the area in its other thread FreeList (RevolverCAS)
+* Free performed in another thread holds the area in its other thread FreeList (RevolverAtomic)
 
-## RevolverCAS mechanism
+## RevolverAtomic mechanism
 ### Allocation Revolver and Free Revolver
-* Allocation Revolver rotates a dedicated CAS index on every request
-* Free Revolver rotates a dedicated CAS index on every request
-* Distribute access between allocated and freed CAS indexes
-* CAS is distributedly accessed for allocation requests and simultaneous free requests (reduce the lock conflict problem)
+* Allocation Revolver rotates a dedicated Atomic index on every request
+* Free Revolver rotates a dedicated Atomic index on every request
+* Distribute access between allocated and freed Atomic indexes
+* Distributed access to atomic operations for allocation requests and simultaneous free requests (reduce the lock conflict problem)
 * Do not transfer thread execution right
 
 ## Reserver mechanism

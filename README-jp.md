@@ -5,7 +5,7 @@
 * あらゆるサイズの、高速な割り当てと解放
 * 高速な Cache 機構（自スレッド FreeList と、他スレッド FreeList）
   * 自スレッド FreeList 動作時、atomic 操作なし、CAS 操作なし（Lock-Free & Wait-Free）
-  * 他スレッド FreeList 動作時、RevolverCAS（Lock-Free、!Wait-Free）
+  * 他スレッド FreeList 動作時、RevolverAtomic（Lock-Free、!Wait-Free）
   * 優先的な自スレッド FreeList の使用
 * 高速な Reserver 機構（ローカル FreeList と、グローバル FreeList）
   * ローカル FreeList 動作時、atomic 操作なし、CAS 操作なし（Lock-Free & Wait-Free）
@@ -74,19 +74,19 @@ testA ～ testI まで、9種類のテストを行った累計です。
 
 ### 割り当て
 * 割り当て要求が来ると、自スレッド FreeList から領域を取り出し、アプリケーションに返します
-* 自スレッド FreeList が空であれば、他スレッド FreeList から割り当てを行います（RevolverCAS）
+* 自スレッド FreeList が空であれば、他スレッド FreeList から割り当てを行います（RevolverAtomic）
 * 他スレッド FreeList が空であれば、Cache 機構を所持しているアロケーターに処理を委ねます
 
 ### 解放
 * 自スレッドで行った解放は、自スレッド FreeList に領域を保持します
-* 他スレッドで行った解放は、他スレッド FreeList に領域を保持します（RevolverCAS）
+* 他スレッドで行った解放は、他スレッド FreeList に領域を保持します（RevolverAtomic）
 
-## RevolverCAS 機構
+## RevolverAtomic 機構
 ### 割り当て Revolver と、解放 Revolver
-* 割り当て Revolver は、要求毎に専用の CAS インデックスを回転します
-* 解放 Revolver は、要求毎に専用の CAS インデックスを回転します
-* 割り当てと解放で、CAS インデックスを分散アクセスします
-* 割り当ての要求や、解放の同時要求では、CAS を分散アクセスします（lock conflict 問題を軽減）
+* 割り当て Revolver は、要求毎に専用の Atomic インデックスを回転します
+* 解放 Revolver は、要求毎に専用の Atomic インデックスを回転します
+* 割り当てと解放で、Atomic インデックスを分散アクセスします
+* 割り当ての要求や、解放の同時要求では、Atomic 操作を分散アクセスします（lock conflict 問題を軽減）
 * スレッド実行権を譲渡しません
 
 ## Reserver 機構
