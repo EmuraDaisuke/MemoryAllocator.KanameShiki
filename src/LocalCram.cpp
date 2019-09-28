@@ -77,10 +77,9 @@ void* LocalCram::Alloc(std::size_t s) noexcept
 	
 	assert(RealmT < numof(maParallel));
 	auto& rParallel = maParallel[RealmT];
-	auto& rCacheST = rParallel.mCacheST;
-	Auto pParcel = rCacheST.p;
+	Auto pParcel = rParallel.mCacheST.p;
 	if (pParcel){
-		rCacheST.p = pParcel->Alloc(this);
+		rParallel.mCacheST.p = pParcel->Alloc(this);
 		return pParcel->CastData();
 	} else {
 		Auto oRevolver = rParallel.mRevolverAlloc.o & rParallel.RevolverMask();
