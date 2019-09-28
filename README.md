@@ -86,7 +86,8 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 ### Allocation Revolver and Free Revolver
 * Allocation Revolver rotates a dedicated CAS index on every request
 * Free Revolver rotates a dedicated CAS index on every request
-* In the simultaneous Free request, the CAS is accessed in a distributed manner (reduce the lock conflict problem)
+* Distribute access between allocated and freed CAS indexes
+* CAS is distributedly accessed for allocation requests and simultaneous free requests (reduce the lock conflict problem)
 * Do not transfer thread execution right
 
 ## Reserver mechanism
