@@ -3,6 +3,7 @@ Kaname-Shiki is a lightweight and fast memory allocator.
 
 It has the following features.  
 * Fast allocation and free of any size
+* Highly efficient parallel operation with RevolverAtomic
 * Fast Cache mechanism (own thread FreeList and other thread FreeList)
   * At the time of own thread FreeList operation, no atomic operation, no CAS operation (Lock-Free & Wait-Free)
   * Use RevolverAtomic when working with other thread FreeList (Lock-Free, !Wait-Free)
@@ -16,7 +17,7 @@ It has the following features.
 * Utilization of highly efficient memory
 * Utilization of highly efficient HardwareCache
 * Thread scalable
-* Light source code (total 50KB, 2700 lines)
+* Lightweight source code (total 50KB, 2700 lines)
 
 <br>
 
@@ -77,7 +78,7 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 ### Own thread FreeList and other threads FreeList
 * Keep allocatable space
 * The own thread FreeList is guaranteed to be accessed by its own thread (no atomic operation, no CAS operation)
-* Other thread FreeList is accessed simultaneously from multiple threads
+* Other thread FreeList is accessed simultaneously from multiple threads (RevolverAtomic)
 * FreeList is distributedly accessed by its own thread and other threads (improved parallel operation efficiency)
 * Do not transfer thread execution right
 
@@ -94,7 +95,7 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 ### Local FreeList and Global FreeList
 * Keep allocatable space
 * Local FreeList is guaranteed to be accessed by its own thread (no atomic operation, no CAS operation)
-* Global FreeList is accessed from multiple threads simultaneously
+* Global FreeList is accessed from multiple threads simultaneously (RevolverAtomic)
 * FreeList is distributedly accessed by its own thread and other threads (improved parallel operation efficiency)
 * Do not transfer thread execution right
 

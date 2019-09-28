@@ -3,6 +3,7 @@
 
 以下の特徴があります。  
 * あらゆるサイズの、高速な割り当てと解放
+* RevolverAtomicによる、高効率な並列動作
 * 高速な Cache 機構（自スレッド FreeList と、他スレッド FreeList）
   * 自スレッド FreeList 動作時、atomic 操作なし、CAS 操作なし（Lock-Free & Wait-Free）
   * 他スレッド FreeList 動作時、RevolverAtomic（Lock-Free、!Wait-Free）
@@ -76,7 +77,7 @@ testA ～ testI まで、9種類のテストを行った累計です。
 ### 自スレッド FreeList と、他スレッド FreeList
 * 割り当て可能な領域を保持します
 * 自スレッド FreeList は、自スレッドの単独アクセスが保証されています（atomic 操作なし、CAS 操作なし）
-* 他スレッド FreeList は、複数のスレッドから同時にアクセスされます
+* 他スレッド FreeList は、複数のスレッドから同時にアクセスされます（RevolverAtomic）
 * 自スレッドと他スレッドで、FreeList を分散アクセスします（並列動作効率の向上）
 * スレッド実行権を譲渡しません
 
@@ -93,7 +94,7 @@ testA ～ testI まで、9種類のテストを行った累計です。
 ### ローカル FreeList と、グローバル FreeList
 * 割り当て可能な領域を保持します
 * ローカル FreeList は、自スレッドの単独アクセスが保証されています（atomic 操作なし、CAS 操作なし）
-* グローバル FreeList は、複数のスレッドから同時にアクセスされます
+* グローバル FreeList は、複数のスレッドから同時にアクセスされます（RevolverAtomic）
 * ローカルとグローバルで、FreeList を分散アクセスします（並列動作効率の向上）
 * スレッド実行権を譲渡しません
 
