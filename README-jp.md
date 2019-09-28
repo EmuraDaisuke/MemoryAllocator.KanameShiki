@@ -9,7 +9,7 @@
   * 優先的な自スレッド FreeList の使用
 * 高速な Reserver 機構（ローカル FreeList と、グローバル FreeList）
   * ローカル FreeList 動作時、atomic 操作なし、CAS 操作なし（Lock-Free & Wait-Free）
-  * グローバル FreeList 動作時、RevolverSpinlock（Lock-Free、!Wait-Free）
+  * グローバル FreeList 動作時、RevolverAtomic（Lock-Free、!Wait-Free）
   * 優先的なローカル FreeList の使用
 * グローバル Heap 動作時、通常の Mutex（!Lock-Free、!Wait-Free）
 * メモリー不足時の再試行
@@ -64,6 +64,14 @@ testA ～ testI まで、9種類のテストを行った累計です。
 * スレッド実行権の譲渡問題
   * OS のスレッド再スケジュールにより、処理速度が低下します
 
+## RevolverAtomic 機構
+### 割り当て Revolver と、解放 Revolver
+* 割り当て Revolver は、要求毎に専用の Atomic インデックスを回転します
+* 解放 Revolver は、要求毎に専用の Atomic インデックスを回転します
+* 割り当てと解放で、Atomic インデックスを分散アクセスします（atomic fighting 問題を軽減）
+* 割り当ての同時要求や、解放の同時要求では、Atomic 操作を分散アクセスします（lock conflict 問題を軽減）
+* スレッド実行権を譲渡しません
+
 ## Cache 機構
 ### 自スレッド FreeList と、他スレッド FreeList
 * 割り当て可能な領域を保持します
@@ -81,14 +89,6 @@ testA ～ testI まで、9種類のテストを行った累計です。
 * 自スレッドで行った解放は、自スレッド FreeList に領域を保持します
 * 他スレッドで行った解放は、他スレッド FreeList に領域を保持します（RevolverAtomic）
 
-## RevolverAtomic 機構
-### 割り当て Revolver と、解放 Revolver
-* 割り当て Revolver は、要求毎に専用の Atomic インデックスを回転します
-* 解放 Revolver は、要求毎に専用の Atomic インデックスを回転します
-* 割り当てと解放で、Atomic インデックスを分散アクセスします
-* 割り当ての要求や、解放の同時要求では、Atomic 操作を分散アクセスします（lock conflict 問題を軽減）
-* スレッド実行権を譲渡しません
-
 ## Reserver 機構
 ### ローカル FreeList と、グローバル FreeList
 * 割り当て可能な領域を保持します
@@ -99,22 +99,14 @@ testA ～ testI まで、9種類のテストを行った累計です。
 
 ### 割り当て
 * 割り当て要求が来ると、ローカル FreeList から領域を取り出し、アプリケーションに返します
-* ローカル FreeList が空であれば、グローバル FreeList から割り当てを行います（RevolverSpinlock）
+* ローカル FreeList が空であれば、グローバル FreeList から割り当てを行います（RevolverAtomic）
 * グローバル FreeList が空であれば、GlobalHeap から割り当てを行います（通常の Mutex）
 * GlobalHeap からの割り当てに失敗した場合、OS から割り当てを行います（排他制御は OS に委ねる）
 * OS からの割り当てに失敗した場合、ローカル FreeList と グローバル FreeList に保持していた領域を解放し、割り当てを再試行します
 
 ### 解放
 * 自スレッドで行った解放は、ローカル FreeList に領域を保持します
-* 他スレッドで行った解放は、グローバル FreeList に領域を保持します（RevolverSpinlock）
-
-## RevolverSpinlock 機構
-### 割り当て Revolver と、解放 Revolver
-* 割り当て Revolver は、要求毎に専用の Spinlock インデックスを回転します
-* 解放 Revolver は、要求毎に専用の Spinlock インデックスを回転します
-* 割り当てと解放で、Spinlock インデックスを分散アクセスします（atomic fighting 問題を軽減）
-* 割り当ての同時要求や、解放の同時要求では、Spinlock を分散アクセスします（lock conflict 問題を軽減）
-* スレッド実行権を譲渡しません
+* 他スレッドで行った解放は、グローバル FreeList に領域を保持します（RevolverAtomic）
 
 ## LocalPool
 ### 固定サイズのプール型アロケーター

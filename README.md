@@ -9,7 +9,7 @@ It has the following features.
   * Use own-threaded FreeList preferentially
 * Fast Reserver mechanism (local FreeList and global FreeList)
   * When operating with local FreeList, no atomic operation, no CAS operation (Lock-Free & Wait-Free)
-  * Use RevolverSpinlock when working with Global FreeList (Lock-Free, !Wait-Free)
+  * Use RevolverAtomic when working with Global FreeList (Lock-Free, !Wait-Free)
   * Use a preferred local FreeList
 * When working with Global Heap, normal Mutex (!Lock-Free, !Wait-Free)
 * Retry when memory is low
@@ -65,6 +65,14 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 * Thread execution right transfer problem
   * Thread rescheduling by the OS slows down processing speed
 
+## RevolverAtomic mechanism
+### Allocation Revolver and Free Revolver
+* Allocation Revolver rotates a dedicated Atomic index on every request
+* Free Revolver rotates a dedicated Atomic index on every request
+* Distribute access between allocated and freed Atomic indexes (reduces atomic fighting problems)
+* In the simultaneous request for allocation and the simultaneous request for free, atomic operations are distributedly accessed (reducing lock conflict problems)
+* Do not transfer thread execution right
+
 ## Cache mechanism
 ### Own thread FreeList and other threads FreeList
 * Keep allocatable space
@@ -82,14 +90,6 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 * Free performed in its own thread holds the area in its own thread FreeList
 * Free performed in another thread holds the area in its other thread FreeList (RevolverAtomic)
 
-## RevolverAtomic mechanism
-### Allocation Revolver and Free Revolver
-* Allocation Revolver rotates a dedicated Atomic index on every request
-* Free Revolver rotates a dedicated Atomic index on every request
-* Distribute access between allocated and freed Atomic indexes
-* Distributed access to atomic operations for allocation requests and simultaneous free requests (reduce the lock conflict problem)
-* Do not transfer thread execution right
-
 ## Reserver mechanism
 ### Local FreeList and Global FreeList
 * Keep allocatable space
@@ -100,7 +100,7 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 
 ### Allocation
 * When an allocation request comes, it takes the area from the local FreeList and returns it to the application
-* If the local FreeList is empty, allocate from the global FreeList (RevolverSpinlock)
+* If the local FreeList is empty, allocate from the global FreeList (RevolverAtomic)
 * If global FreeList is empty, assign from GlobalHeap (normal mutex)
 * If allocation from GlobalHeap fails, allocation is performed from the OS (exclusive control is left to the OS)
 * If allocation from the OS fails, free the space held in the local FreeList and global FreeList and retry the allocation
@@ -108,14 +108,6 @@ Speed ​​up is achieved by avoiding, overcoming, or mitigating the following 
 ### Free
 * Free performed by the own thread retains space in the local FreeList
 * Free performed in another thread holds the area in its global FreeList
-
-## RevolverSpinlock mechanism
-### Allocation Revolver and Free Revolver
-* Allocation Revolver rotates a dedicated Spinlock index on every request
-* Free Revolver rotates a dedicated Spinlock index on every request
-* Distribute access between allocated and freed Spinlock indexes (reduces atomic fighting problems)
-* Spinlock is distributedly accessed for simultaneous allocation requests and simultaneous free requests (reducing lock conflict problems)
-* Do not transfer thread execution right
 
 ## LocalPool
 ### Fixed size pool allocator
