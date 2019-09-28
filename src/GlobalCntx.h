@@ -23,9 +23,6 @@ class GlobalCntx final : private NonCopyable<GlobalCntx> {
 	
 	private:
 		GlobalHeap mHeap;
-		
-		uint32_t mnRevolver;
-		uint32_t mbRevolver;
 		GlobalReserver mReserver;
 };
 

@@ -11,7 +11,7 @@ class GlobalReserver final : private NonCopyable<GlobalReserver> {
 		~GlobalReserver() noexcept			= default;
 		
 		GlobalReserver()					= default;
-		GlobalReserver(uint8_t bRevolver);
+		GlobalReserver(bool bInit);
 		
 		void Destruct() noexcept;
 		void Release() noexcept;

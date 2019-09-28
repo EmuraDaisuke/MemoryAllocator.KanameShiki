@@ -12,7 +12,7 @@
 #include <array>
 #include <immintrin.h>
 
-#ifdef _WIN32//[
+#if _WIN32//[
 #include <windows.h>
 #include <tlhelp32.h>
 #else//][

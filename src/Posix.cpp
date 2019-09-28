@@ -17,7 +17,7 @@ using namespace KanameShiki;
 
 static size_t SystemPageSize()
 {
-	#ifdef _WIN32//[
+	#if _WIN32//[
 	SYSTEM_INFO Info;
 	GetSystemInfo(&Info);
 	return Info.dwPageSize;

@@ -11,7 +11,7 @@ class GlobalHeap final : private NonCopyable<GlobalHeap> {
 		~GlobalHeap() noexcept				= default;
 		
 		GlobalHeap()						= default;
-		GlobalHeap(std::size_t s);
+		GlobalHeap(bool bInit);
 		
 		void Destruct() noexcept;
 		

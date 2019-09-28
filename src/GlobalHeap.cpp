@@ -114,9 +114,9 @@ class alignas(csCacheLine) GlobalHeap::Node final {
 
 // GlobalHeap
 
-GlobalHeap::GlobalHeap(std::size_t s)
-:ms(s)
-,mp(SystemAlloc(s))
+GlobalHeap::GlobalHeap(bool bInit)
+:ms(csGlobalHeap)
+,mp(SystemAlloc(ms))
 ,mnAlloc(0)
 ,mOrder{}
 ,maFree{}
@@ -126,7 +126,7 @@ GlobalHeap::GlobalHeap(std::size_t s)
 	
 	{	// 
 		Auto sNode = Node::SizeofT();
-		Auto sFree = bound_t(s - sNode, csCacheLine);
+		Auto sFree = bound_t(ms - sNode, csCacheLine);
 		
 		Auto pFree = reinterpret_cast<Node*>(mp);
 		new(pFree) Node(&mOrder);

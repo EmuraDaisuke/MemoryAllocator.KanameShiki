@@ -35,15 +35,12 @@ GlobalCntx::~GlobalCntx() noexcept
 
 GlobalCntx::GlobalCntx(bool bInit)
 {
-	new(&mHeap) GlobalHeap(csHeap);
-	
-	mnRevolver = std::thread::hardware_concurrency() + 1;
-	mbRevolver = Lzc::Msb(mnRevolver + mnRevolver - 1);
+	new(&mHeap) GlobalHeap(bInit);
 	
 	assert(!gpGlobalCntx);
 	gpGlobalCntx = this;
 	
-	new(&mReserver) GlobalReserver(mbRevolver + 1);
+	new(&mReserver) GlobalReserver(bInit);
 }
 
 

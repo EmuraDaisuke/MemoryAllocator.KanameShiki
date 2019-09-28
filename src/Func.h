@@ -9,6 +9,7 @@ namespace KanameShiki {
 // System
 void SystemFree(void* p, std::size_t s) noexcept;
 void* SystemAlloc(std::size_t s) noexcept;
+uint16_t SystemRevolver() noexcept;
 
 // Global
 void GlobalHeapFree(void* p) noexcept;

@@ -21,19 +21,19 @@ class GlobalReserver::Segment final {
 		
 		
 		
-		Segment(uint16_t nRevolver, uint16_t nReserver, uint16_t Realm)
+		Segment(uint16_t nReserver, uint16_t Realm)
 		:ms(Tag::Size(Realm))
 		,mRealm(Realm)
-		,mnRevolver(nRevolver)
-		,mmRevolver(nRevolver-1)
+		,mnRevolver(SystemRevolver())
+		,mmRevolver(mnRevolver-1)
 		,mnReserver(nReserver)
 		,mnAllocHeap(0)
 		,mnAllocVirtual(0)
 		,moRevolverFree(0)
 		,moRevolverAlloc(0)
 		,maSpinlock(reinterpret_cast<decltype(maSpinlock)>(this+1))
-		,maaReserver(reinterpret_cast<decltype(maaReserver)>(&maSpinlock[nRevolver]))
-		,maoReserver(reinterpret_cast<decltype(maoReserver)>(&maaReserver[nReserver * nRevolver]))
+		,maaReserver(reinterpret_cast<decltype(maaReserver)>(&maSpinlock[mnRevolver]))
+		,maoReserver(reinterpret_cast<decltype(maoReserver)>(&maaReserver[nReserver * mnRevolver]))
 		{
 			assert(!(to_t(this) & cmCacheLine));
 			assert(Realm < cnRealm);
@@ -104,8 +104,9 @@ class GlobalReserver::Segment final {
 		
 		
 		
-		void* operator new(std::size_t sThis, uint16_t nRevolver, uint32_t nReserver, const std::nothrow_t&) noexcept
+		void* operator new(std::size_t sThis, uint32_t nReserver, const std::nothrow_t&) noexcept
 		{
+			uint16_t nRevolver = SystemRevolver();
 			Auto saSpinlock = sizeof(maSpinlock[0]) * nRevolver;
 			Auto saaReserver = sizeof(maaReserver[0]) * nReserver * nRevolver;
 			Auto saoReserver = sizeof(maoReserver[0]) * nRevolver;
@@ -116,8 +117,8 @@ class GlobalReserver::Segment final {
 		
 		
 		
-		void operator delete(void* p, uint16_t nRevolver, uint32_t nReserver, const std::nothrow_t&) noexcept	{ GlobalHeapFree(p); }
-		void operator delete(void* p) noexcept																	{ GlobalHeapFree(p); }
+		void operator delete(void* p, uint32_t nReserver, const std::nothrow_t&) noexcept	{ GlobalHeapFree(p); }
+		void operator delete(void* p) noexcept												{ GlobalHeapFree(p); }
 	
 	private:
 		struct Reserver;
@@ -161,7 +162,7 @@ class GlobalReserver::Segment final {
 		{
 			Auto s = ms + csCacheLine;
 			#if KANAMESHIKI_HEAP_SPECIALIZATION//[
-			Auto p = (ms < csVirtual)? GlobalHeapAlloc(s): nullptr;
+			Auto p = GlobalHeapAlloc(s);
 			bool bVirtual = !p;
 			p = (p)? p: SystemAlloc(s);
 			#else//][
@@ -218,14 +219,12 @@ class GlobalReserver::Segment final {
 
 // GlobalReserver
 
-GlobalReserver::GlobalReserver(uint8_t bRevolver)
+GlobalReserver::GlobalReserver(bool bInit)
 {
-	uint16_t nRevolver = bit(bRevolver);
-	
 	uint16_t Realm = 0;
 	for (auto& rpSegment : mapRealm){
 		Auto nReserver = NumReserver(Realm);
-		rpSegment = new(nRevolver, nReserver, std::nothrow) GlobalReserver::Segment(nRevolver, nReserver, Realm);
+		rpSegment = new(nReserver, std::nothrow) GlobalReserver::Segment(nReserver, Realm);
 		assert(rpSegment);
 		++Realm;
 	}
@@ -281,9 +280,11 @@ void* GlobalReserver::Alloc(std::size_t s) noexcept
 
 uint16_t GlobalReserver::NumReserver(uint16_t Realm) const noexcept
 {
-	Auto sReserver = bit(cbMemory - cbFrac);
-	Auto Ratio = sReserver / Tag::Size(Realm);
+	Auto Ratio = csGlobalReserver / Tag::Size(Realm);
 	Auto nReserver = Lzc::Msb(Ratio) + 1;
+	#if !_WIN32//[
+	nReserver *= (std::thread::hardware_concurrency() + 1);
+	#endif//]
 	return nReserver;
 }
 

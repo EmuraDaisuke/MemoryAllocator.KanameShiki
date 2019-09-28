@@ -60,17 +60,20 @@ static constexpr Auto cnCramParcel = bit(cbCramParcel);
 
 
 // 
-static constexpr std::size_t cbVirtual = (cbCram + cbCramParcel)+1;
-static constexpr std::size_t csVirtual = bit(cbVirtual);
+static constexpr std::size_t cbGlobalReserver = /*GiB*/30 + /*1*/0;		// 1GiB
+static constexpr std::size_t csGlobalReserver = bit(cbGlobalReserver);
+
+static constexpr std::size_t cbLocalReserver = /*MiB*/20 + /*1*/0;		// 1MiB
+static constexpr std::size_t csLocalReserver = bit(cbLocalReserver);
 
 
 // 
 #if KANAMESHIKI_HEAP_SPECIALIZATION//[
-static constexpr std::size_t cbHeap = /*GiB*/30 + /*8*/3;		// 8GiB
+static constexpr std::size_t cbGlobalHeap = /*GiB*/30 + /*8*/3;		// 8GiB
 #else//][
-static constexpr std::size_t cbHeap = /*MiB*/20 + /*8*/3;		// 8MiB
+static constexpr std::size_t cbGlobalHeap = /*MiB*/20 + /*8*/3;		// 8MiB
 #endif//]
-static constexpr std::size_t csHeap = bit(cbHeap);
+static constexpr std::size_t csGlobalHeap = bit(cbGlobalHeap);
 
 
 

@@ -152,8 +152,7 @@ void* LocalReserver::Alloc(std::size_t s) noexcept
 
 uint16_t LocalReserver::NumReserver(uint16_t Realm) const noexcept
 {
-	Auto sReserver = bit(cbVirtual - 1);
-	Auto Ratio = sReserver / Tag::Size(Realm);
+	Auto Ratio = csLocalReserver / Tag::Size(Realm);
 	Auto nReserver = Lzc::Msb(Ratio) + 1;
 	return nReserver;
 }

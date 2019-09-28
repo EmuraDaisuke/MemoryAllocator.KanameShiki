@@ -22,7 +22,7 @@ namespace KanameShiki {
 
 void* SystemAlloc(std::size_t s) noexcept
 {
-	#ifdef _WIN32//[
+	#if _WIN32//[
 	return VirtualAlloc(nullptr, s, (MEM_RESERVE | MEM_COMMIT), PAGE_READWRITE);
 	#else//][
 	{	// 
@@ -59,12 +59,21 @@ void* SystemAlloc(std::size_t s) noexcept
 
 void SystemFree(void* p, std::size_t s) noexcept
 {
-	#ifdef _WIN32//[
+	#if _WIN32//[
 	Auto bResult = VirtualFree(p, 0, MEM_RELEASE);
 	#else//][
 	Auto bResult = (munmap(p, s) == 0);
 	#endif//]
 	assert(bResult);
+}
+
+
+
+uint16_t SystemRevolver() noexcept
+{
+	Auto nThread = std::thread::hardware_concurrency() + 1;
+	Auto bThread = Lzc::Msb(nThread + nThread - 1);
+	return bit(bThread);
 }
 
 
