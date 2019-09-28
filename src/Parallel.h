@@ -7,7 +7,7 @@ namespace KanameShiki {
 
 
 template <uint16_t cnRevolver>
-class Parallel final {
+class alignas(csCacheLine) Parallel final {
 	public:
 		~Parallel() noexcept = default;
 		
@@ -67,7 +67,7 @@ class Parallel final {
 		Revolver mRevolverAlloc;
 		
 		Cache mCacheST;
-		std::array<ACache, cnRevolver> maCacheMT;
+		alignas(csCacheLine) std::array<ACache, cnRevolver> maCacheMT;
 };
 
 
