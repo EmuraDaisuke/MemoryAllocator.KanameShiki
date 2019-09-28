@@ -49,7 +49,7 @@ class Parallel final {
 			for (auto n = cnRevolver; n; --n, ++oRevolver){
 				auto& rCacheMT = maCacheMT[oRevolver & RevolverMask()];
 				Auto pParcel = rCacheMT.p.exchange(Parcel::cpInvalid, std::memory_order_acq_rel);
-				for (; pParcel; pParcel = pParcel->Alloc(nullptr), ++nCache);
+				nCache += (pParcel)? 1:0;
 			}
 			
 			return nCache;

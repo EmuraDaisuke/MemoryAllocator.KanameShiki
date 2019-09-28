@@ -88,7 +88,7 @@ void* LocalPool::Alloc() noexcept
 		pParcel = mParallel.maCacheMT[oRevolver].p.exchange(nullptr, std::memory_order_acq_rel);
 		if (pParcel){
 			mParallel.mRevolverAlloc.o = ++oRevolver;
-			rCacheST.p = pParcel->Alloc(this);
+			pParcel->Alloc(this);
 			return pParcel->CastData();
 		} else {
 			Clearance();

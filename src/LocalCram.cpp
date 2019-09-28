@@ -87,7 +87,7 @@ void* LocalCram::Alloc(std::size_t s) noexcept
 		pParcel = rParallel.maCacheMT[oRevolver].p.exchange(nullptr, std::memory_order_acq_rel);
 		if (pParcel){
 			rParallel.mRevolverAlloc.o = ++oRevolver;
-			rCacheST.p = pParcel->Alloc(this);
+			pParcel->Alloc(this);
 			return pParcel->CastData();
 		} else {
 			Auto vParcel = mvParcel;
