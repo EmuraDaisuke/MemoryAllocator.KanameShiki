@@ -47,7 +47,7 @@ static constexpr auto cbPool = 10;
 static constexpr Auto csPool = bit(cbPool);
 static constexpr Auto cnPool = csPool / csSizeT;
 
-static constexpr auto cbPoolParcel = 5;
+static constexpr auto cbPoolParcel = 8;
 static constexpr Auto cnPoolParcel = bit(cbPoolParcel);
 
 
@@ -55,7 +55,7 @@ static constexpr Auto cnPoolParcel = bit(cbPoolParcel);
 static constexpr auto cbCram = 20;
 static constexpr Auto csCram = bit(cbCram);
 
-static constexpr auto cbCramParcel = 4;
+static constexpr auto cbCramParcel = 6;
 static constexpr Auto cnCramParcel = bit(cbCramParcel);
 
 
