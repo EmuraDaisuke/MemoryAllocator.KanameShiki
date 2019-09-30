@@ -32,9 +32,6 @@ class LocalCram final : public Base, private NonCopyable<LocalCram> {
 	
 	private:
 		uint16_t DecCache() noexcept;
-		
-		void CacheST(Parcel* pParcel) noexcept;
-		bool CacheMT(Parcel* pParcel) noexcept;
 	
 	
 	private:

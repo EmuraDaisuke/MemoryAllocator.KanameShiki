@@ -59,10 +59,15 @@ std::size_t LocalCram::Size(Parcel* pParcel) const noexcept
 void LocalCram::Free(Parcel* pParcel) noexcept
 {
 	if (mbCache.load(std::memory_order_acquire)){
+		Auto pTag = Tag::CastTag(pParcel);
+		Auto RealmT = pTag->Realm();
+		assert(RealmT < numof(maParallel));
+		auto& rParallel = maParallel[RealmT];
+		
 		if (mId == std::this_thread::get_id()){
-			CacheST(pParcel); return;
+			rParallel.CacheST(pParcel); return;
 		} else {
-			if (CacheMT(pParcel)) return;
+			if (rParallel.CacheMT(pParcel)) return;
 		}
 	}
 	if (DecCache() == 0) Delete();
@@ -74,12 +79,13 @@ void* LocalCram::Alloc(std::size_t s) noexcept
 {
 	Auto RealmS = Tag::Realm(s);
 	Auto RealmT = RealmS - mRealm;
-	
 	assert(RealmT < numof(maParallel));
 	auto& rParallel = maParallel[RealmT];
-	Auto pParcel = rParallel.mCacheST.p;
+	
+	auto& rCacheST = rParallel.mCacheST;
+	Auto pParcel = rCacheST.p;
 	if (pParcel){
-		rParallel.mCacheST.p = pParcel->Alloc(this);
+		rCacheST.p = pParcel->Alloc(this);
 		return pParcel->CastData();
 	} else {
 		Auto oRevolver = rParallel.mRevolverAlloc.o & rParallel.RevolverMask();
@@ -166,28 +172,6 @@ void* LocalCram::operator new(std::size_t sThis, uint16_t b, const std::nothrow_
 uint16_t LocalCram::DecCache() noexcept
 {
 	return mnCache.fetch_sub(1, std::memory_order_acq_rel) - 1;
-}
-
-
-
-void LocalCram::CacheST(Parcel* pParcel) noexcept
-{
-	Auto pTag = Tag::CastTag(pParcel);
-	Auto RealmT = pTag->Realm();
-	
-	assert(RealmT < numof(maParallel));
-	maParallel[RealmT].CacheST(pParcel);
-}
-
-
-
-bool LocalCram::CacheMT(Parcel* pParcel) noexcept
-{
-	Auto pTag = Tag::CastTag(pParcel);
-	Auto RealmT = pTag->Realm();
-	
-	assert(RealmT < numof(maParallel));
-	return maParallel[RealmT].CacheMT(pParcel);
 }
 
 

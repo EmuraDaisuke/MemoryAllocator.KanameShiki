@@ -162,7 +162,7 @@ class GlobalReserver::Segment final {
 		{
 			Auto s = ms + csCacheLine;
 			#if KANAMESHIKI_HEAP_SPECIALIZATION//[
-			Auto p = GlobalHeapAlloc(s);
+			Auto p = (s <= csHeap)? GlobalHeapAlloc(s): nullptr;
 			bool bVirtual = !p;
 			p = (p)? p: SystemAlloc(s);
 			#else//][

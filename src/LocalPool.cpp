@@ -78,9 +78,10 @@ void LocalPool::Free(Parcel* pParcel) noexcept
 
 void* LocalPool::Alloc() noexcept
 {
-	Auto pParcel = mParallel.mCacheST.p;
+	auto& rCacheST = mParallel.mCacheST;
+	Auto pParcel = rCacheST.p;
 	if (pParcel){
-		mParallel.mCacheST.p = pParcel->Alloc(this);
+		rCacheST.p = pParcel->Alloc(this);
 		return pParcel->CastData();
 	} else {
 		Auto oRevolver = mParallel.mRevolverAlloc.o & mParallel.RevolverMask();

@@ -55,15 +55,20 @@ static constexpr Auto cnPoolParcel = bit(cbPoolParcel);
 static constexpr auto cbCram = 20;
 static constexpr Auto csCram = bit(cbCram);
 
-static constexpr auto cbCramParcel = 6;
+static constexpr auto cbCramParcel = 5;
 static constexpr Auto cnCramParcel = bit(cbCramParcel);
 
 
 // 
-static constexpr std::size_t cbGlobalReserver = /*GiB*/30 + /*1*/0;		// 1GiB
+static constexpr std::size_t cbHeap = cbCram + cbCramParcel + 1;
+static constexpr std::size_t csHeap = bit(cbHeap);
+
+
+// 
+static constexpr std::size_t cbGlobalReserver = cbMemory;
 static constexpr std::size_t csGlobalReserver = bit(cbGlobalReserver);
 
-static constexpr std::size_t cbLocalReserver = /*MiB*/20 + /*1*/0;		// 1MiB
+static constexpr std::size_t cbLocalReserver = cbMemory-10;
 static constexpr std::size_t csLocalReserver = bit(cbLocalReserver);
 
 
