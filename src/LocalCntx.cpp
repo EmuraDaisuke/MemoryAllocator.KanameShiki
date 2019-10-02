@@ -22,19 +22,8 @@ LocalCntx::~LocalCntx() noexcept
 {
 	if (gpLocalCntx){
 		if (--gvLocalCntx == 0){
-			for (Auto pPool : mapPool){
-				if (pPool){
-					pPool->Clearance();
-					if (pPool->Closed()) pPool->Delete();
-				}
-			}
-			
-			for (Auto pCram : mapCram){
-				if (pCram){
-					pCram->Clearance();
-					if (pCram->Closed()) pCram->Delete();
-				}
-			}
+			for (Auto pPool : mapPool) if (pPool && pPool->Clearance() == 0) pPool->Delete();
+			for (Auto pCram : mapCram) if (pCram && pCram->Clearance() == 0) pCram->Delete();
 			
 			mReserver.Destruct();
 			

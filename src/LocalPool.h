@@ -20,9 +20,7 @@ class LocalPool final : public Base, private NonCopyable<LocalPool> {
 		void Free(Parcel* pParcel) noexcept;
 		void* Alloc() noexcept;
 		
-		void Clearance() noexcept;
-		bool Closed() const noexcept;
-		
+		uint16_t Clearance() noexcept;
 		void Delete() noexcept;
 		
 		void* operator new(std::size_t sThis, uint16_t o, const std::nothrow_t&) noexcept;
@@ -31,7 +29,7 @@ class LocalPool final : public Base, private NonCopyable<LocalPool> {
 		void operator delete(void* p) noexcept										{ assert(false); }
 	
 	private:
-		uint16_t DecCache() noexcept;
+		uint16_t DecCache(uint16_t nCache) noexcept;
 	
 	
 	private:

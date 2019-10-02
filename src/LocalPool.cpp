@@ -18,7 +18,7 @@ uint64_t NumLocalPool() noexcept
 
 LocalPool::~LocalPool() noexcept
 {
-	assert(Closed());
+	assert(mnCache.load(std::memory_order_acquire) == 0);
 	
 	#if KANAMESHIKI_DEBUG_LEVEL//[
 	gnLocalPool.fetch_sub(1, std::memory_order_acq_rel);
@@ -71,7 +71,7 @@ void LocalPool::Free(Parcel* pParcel) noexcept
 			if (mParallel.CacheMT(pParcel)) return;
 		}
 	}
-	if (DecCache() == 0) Delete();
+	if (DecCache(1) == 0) Delete();
 }
 
 
@@ -99,19 +99,12 @@ void* LocalPool::Alloc() noexcept
 
 
 
-void LocalPool::Clearance() noexcept
+uint16_t LocalPool::Clearance() noexcept
 {
 	mbCache.store(false, std::memory_order_release);
 	
 	Auto nCache = mParallel.Clearance();
-	mnCache.fetch_sub(nCache, std::memory_order_acq_rel);
-}
-
-
-
-bool LocalPool::Closed() const noexcept
-{
-	return (mnCache.load(std::memory_order_acquire) == 0);
+	return DecCache(nCache);
 }
 
 
@@ -142,9 +135,9 @@ void* LocalPool::operator new(std::size_t sThis, uint16_t o, const std::nothrow_
 
 
 
-uint16_t LocalPool::DecCache() noexcept
+uint16_t LocalPool::DecCache(uint16_t nCache) noexcept
 {
-	return mnCache.fetch_sub(1, std::memory_order_acq_rel) - 1;
+	return mnCache.fetch_sub(nCache, std::memory_order_acq_rel) - nCache;
 }
 
 

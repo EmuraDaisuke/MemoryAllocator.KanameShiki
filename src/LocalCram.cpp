@@ -18,7 +18,7 @@ uint64_t NumLocalCram() noexcept
 
 LocalCram::~LocalCram() noexcept
 {
-	assert(Closed());
+	assert(mnCache.load(std::memory_order_acquire) == 0);
 	
 	#if KANAMESHIKI_DEBUG_LEVEL//[
 	gnLocalCram.fetch_sub(1, std::memory_order_acq_rel);
@@ -70,7 +70,7 @@ void LocalCram::Free(Parcel* pParcel) noexcept
 			if (rParallel.CacheMT(pParcel)) return;
 		}
 	}
-	if (DecCache() == 0) Delete();
+	if (DecCache(1) == 0) Delete();
 }
 
 
@@ -128,20 +128,13 @@ void* LocalCram::Alloc(std::size_t s) noexcept
 
 
 
-void LocalCram::Clearance() noexcept
+uint16_t LocalCram::Clearance() noexcept
 {
 	mbCache.store(false, std::memory_order_release);
 	
 	uint16_t nCache = 0;
 	for (auto& rParallel : maParallel) nCache += rParallel.Clearance();
-	mnCache.fetch_sub(nCache, std::memory_order_acq_rel);
-}
-
-
-
-bool LocalCram::Closed() const noexcept
-{
-	return (mnCache.load(std::memory_order_acquire) == 0);
+	return DecCache(nCache);
 }
 
 
@@ -169,9 +162,9 @@ void* LocalCram::operator new(std::size_t sThis, uint16_t b, const std::nothrow_
 
 
 
-uint16_t LocalCram::DecCache() noexcept
+uint16_t LocalCram::DecCache(uint16_t nCache) noexcept
 {
-	return mnCache.fetch_sub(1, std::memory_order_acq_rel) - 1;
+	return mnCache.fetch_sub(nCache, std::memory_order_acq_rel) - nCache;
 }
 
 
