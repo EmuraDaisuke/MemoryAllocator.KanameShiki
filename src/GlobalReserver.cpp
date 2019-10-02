@@ -112,13 +112,13 @@ class GlobalReserver::Segment final {
 			Auto saoReserver = sizeof(maoReserver[0]) * nRevolver;
 			
 			Auto sBudget = sThis + saSpinlock + saaReserver + saoReserver;
-			return GlobalHeapAlloc(sBudget);
+			return GlobalCntxPtr()->HeapAlloc(sBudget);
 		}
 		
 		
 		
-		void operator delete(void* p, uint32_t nReserver, const std::nothrow_t&) noexcept	{ GlobalHeapFree(p); }
-		void operator delete(void* p) noexcept												{ GlobalHeapFree(p); }
+		void operator delete(void* p, uint32_t nReserver, const std::nothrow_t&) noexcept	{ GlobalCntxPtr()->HeapFree(p); }
+		void operator delete(void* p) noexcept												{ GlobalCntxPtr()->HeapFree(p); }
 	
 	private:
 		struct Reserver;
@@ -145,7 +145,7 @@ class GlobalReserver::Segment final {
 			
 			Auto s = ms + csCacheLine;
 			#if KANAMESHIKI_HEAP_SPECIALIZATION//[
-			(bVirtual)? SystemFree(p, s): GlobalHeapFree(p);
+			(bVirtual)? SystemFree(p, s): GlobalCntxPtr()->HeapFree(p);
 			#else//][
 			assert(bVirtual);
 			SystemFree(p, s);
@@ -162,7 +162,7 @@ class GlobalReserver::Segment final {
 		{
 			Auto s = ms + csCacheLine;
 			#if KANAMESHIKI_HEAP_SPECIALIZATION//[
-			Auto p = (s <= csHeap)? GlobalHeapAlloc(s): nullptr;
+			Auto p = (s <= csHeap)? GlobalCntxPtr()->HeapAlloc(s): nullptr;
 			bool bVirtual = !p;
 			p = (p)? p: SystemAlloc(s);
 			#else//][

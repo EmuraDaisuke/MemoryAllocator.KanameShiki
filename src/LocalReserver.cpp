@@ -31,7 +31,7 @@ class LocalReserver::Segment final {
 		{
 			auto& oReserver = moReserver;
 			while (oReserver){
-				GlobalReserverFree(maReserver[--oReserver].p);
+				GlobalCntxPtr()->ReserverFree(maReserver[--oReserver].p);
 			}
 		}
 		
@@ -43,7 +43,7 @@ class LocalReserver::Segment final {
 			if (oReserver < mnReserver){
 				maReserver[oReserver++].p = p;
 			} else {
-				GlobalReserverFree(p);
+				GlobalCntxPtr()->ReserverFree(p);
 			}
 		}
 		
@@ -55,7 +55,7 @@ class LocalReserver::Segment final {
 			if (oReserver){
 				return maReserver[--oReserver].p;
 			} else {
-				return GlobalReserverAlloc(ms);
+				return GlobalCntxPtr()->ReserverAlloc(ms);
 			}
 		}
 		
@@ -66,11 +66,11 @@ class LocalReserver::Segment final {
 			Auto saReserver = sizeof(maReserver[0]) * nReserver;
 			
 			Auto sBudget = sThis + saReserver;
-			return GlobalReserverAlloc(sBudget);
+			return GlobalCntxPtr()->ReserverAlloc(sBudget);
 		}
 		
-		void operator delete(void* p, uint32_t nReserver, const std::nothrow_t&) noexcept	{ GlobalReserverFree(p); }
-		void operator delete(void* p) noexcept												{ GlobalReserverFree(p); }
+		void operator delete(void* p, uint32_t nReserver, const std::nothrow_t&) noexcept	{ GlobalCntxPtr()->ReserverFree(p); }
+		void operator delete(void* p) noexcept												{ GlobalCntxPtr()->ReserverFree(p); }
 	
 	
 	private:
@@ -116,7 +116,7 @@ void LocalReserver::Release() noexcept
 	for (auto& rpSegment : mapRealm){
 		rpSegment->Release();
 	}
-	GlobalReserverRelease();
+	GlobalCntxPtr()->ReserverRelease();
 }
 
 

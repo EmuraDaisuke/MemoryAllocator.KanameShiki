@@ -116,9 +116,9 @@ void LocalPool::Delete() noexcept
 	this->~LocalPool();
 	
 	if (bSelf){
-		LocalReserverFree(this);
+		LocalCntxPtr()->ReserverFree(this);
 	} else {
-		GlobalReserverFree(this);
+		GlobalCntxPtr()->ReserverFree(this);
 	}
 }
 
@@ -130,7 +130,7 @@ void* LocalPool::operator new(std::size_t sThis, uint16_t o, const std::nothrow_
 	Auto sParcelS = Parcel::SizeofS(s);
 	
 	Auto sBudget = sThis + csAlign + (sParcelS * cnPoolParcel);
-	return LocalReserverAlloc(sBudget);
+	return LocalCntxPtr()->ReserverAlloc(sBudget);
 }
 
 

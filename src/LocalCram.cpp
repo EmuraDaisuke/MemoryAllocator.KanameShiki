@@ -146,9 +146,9 @@ void LocalCram::Delete() noexcept
 	this->~LocalCram();
 	
 	if (bSelf){
-		LocalReserverFree(this);
+		LocalCntxPtr()->ReserverFree(this);
 	} else {
-		GlobalReserverFree(this);
+		GlobalCntxPtr()->ReserverFree(this);
 	}
 }
 
@@ -157,7 +157,7 @@ void LocalCram::Delete() noexcept
 void* LocalCram::operator new(std::size_t sThis, uint16_t b, const std::nothrow_t&) noexcept
 {
 	Auto sBudget = sThis + (bit(b) * cnCramParcel);
-	return LocalReserverAlloc(sBudget);
+	return LocalCntxPtr()->ReserverAlloc(sBudget);
 }
 
 

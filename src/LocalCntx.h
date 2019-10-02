@@ -29,8 +29,8 @@ class LocalCntx final : private NonCopyable<LocalCntx> {
 	
 	private:
 		LocalReserver mReserver;
-		std::array<LocalCram*, cnExpo> mapCram;
 		std::array<LocalPool*, cnPool+1> mapPool;
+		std::array<LocalCram*, cbCram+1> mapCram;
 };
 
 

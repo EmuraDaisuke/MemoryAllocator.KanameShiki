@@ -9,19 +9,14 @@ namespace KanameShiki {
 // System
 void SystemFree(void* p, std::size_t s) noexcept;
 void* SystemAlloc(std::size_t s) noexcept;
+
 uint16_t SystemRevolver() noexcept;
 
 // Global
-void GlobalHeapFree(void* p) noexcept;
-void* GlobalHeapAlloc(std::size_t s) noexcept;
-
-void GlobalReserverRelease() noexcept;
-void GlobalReserverFree(void* p) noexcept;
-void* GlobalReserverAlloc(std::size_t s) noexcept;
+GlobalCntx* GlobalCntxPtr() noexcept;
 
 // Local
-void LocalReserverFree(void* p) noexcept;
-void* LocalReserverAlloc(std::size_t s) noexcept;
+LocalCntx* LocalCntxPtr() noexcept;
 
 // Default
 void Free(void* p) noexcept;

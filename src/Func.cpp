@@ -96,47 +96,6 @@ GlobalCntx* GlobalCntxPtr() noexcept
 
 
 
-void GlobalHeapFree(void* p) noexcept
-{
-	if (p) GlobalCntxPtr()->HeapFree(p);
-}
-
-
-
-void* GlobalHeapAlloc(std::size_t s) noexcept
-{
-	Auto p = GlobalCntxPtr()->HeapAlloc(s);
-	#if !KANAMESHIKI_HEAP_SPECIALIZATION//[
-	assert(p);
-	#endif//]
-	return p;
-}
-
-
-
-void GlobalReserverRelease() noexcept
-{
-	GlobalCntxPtr()->ReserverRelease();
-}
-
-
-
-void GlobalReserverFree(void* p) noexcept
-{
-	if (p) GlobalCntxPtr()->ReserverFree(p);
-}
-
-
-
-void* GlobalReserverAlloc(std::size_t s) noexcept
-{
-	Auto p = GlobalCntxPtr()->ReserverAlloc(s);
-	assert(p);
-	return p;
-}
-
-
-
 // Local
 
 LocalCntx* LocalCntxPtr() noexcept
@@ -148,22 +107,6 @@ LocalCntx* LocalCntxPtr() noexcept
 		new(&gLocalCntx) LocalCntx(true);
 		return gpLocalCntx;
 	}
-}
-
-
-
-void LocalReserverFree(void* p) noexcept
-{
-	if (p) LocalCntxPtr()->ReserverFree(p);
-}
-
-
-
-void* LocalReserverAlloc(std::size_t s) noexcept
-{
-	Auto p = LocalCntxPtr()->ReserverAlloc(s);
-	assert(p);
-	return p;
 }
 
 

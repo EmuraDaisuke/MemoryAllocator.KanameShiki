@@ -50,9 +50,9 @@ void LocalAny::Free(Parcel* pParcel) noexcept
 	this->~LocalAny();
 	
 	if (bSelf){
-		LocalReserverFree(this);
+		LocalCntxPtr()->ReserverFree(this);
 	} else {
-		GlobalReserverFree(this);
+		GlobalCntxPtr()->ReserverFree(this);
 	}
 }
 
@@ -75,7 +75,7 @@ void* LocalAny::operator new(std::size_t sThis, std::size_t s, const std::nothro
 	Auto sParcelS = Parcel::SizeofS(s);
 	
 	Auto sBudget = sThis + csAlign + sParcelS;
-	return LocalReserverAlloc(sBudget);
+	return LocalCntxPtr()->ReserverAlloc(sBudget);
 }
 
 
