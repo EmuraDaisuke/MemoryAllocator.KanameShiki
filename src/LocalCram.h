@@ -41,7 +41,7 @@ class alignas(csCacheLine) LocalCram final : public Base, private NonCopyable<Lo
 		std::size_t mvParcel;
 		std::size_t meParcel;
 		
-		std::array<Parallel<cnCramParcel>, cnFrac+1> maParallel;
+		std::array<Cache<cnCramParcel>, cnFrac+1> maCache;
 		
 		alignas(csCacheLine) std::atomic_bool mbCache;
 		alignas(csCacheLine) std::atomic_uint16_t mnCache;

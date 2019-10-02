@@ -31,7 +31,7 @@ LocalPool::LocalPool(LocalCntx* pOwner, uint16_t o)
 :mId(std::this_thread::get_id())
 ,mpOwner(pOwner)
 ,mo(o)
-,mParallel{}
+,mCache{}
 ,mbCache(true)
 ,mnCache(cnPoolParcel)
 {
@@ -44,7 +44,7 @@ LocalPool::LocalPool(LocalCntx* pOwner, uint16_t o)
 	Auto vParcel = align_t(to_t(this+1) + sParcelT, csAlign) - sParcelT;
 	for (auto n = mnCache.load(std::memory_order_acquire); n; --n){
 		Auto pParcel = reinterpret_cast<Parcel*>(vParcel);
-		mParallel.CacheST(pParcel);
+		mCache.ListST(pParcel);
 		vParcel += sParcelS;
 	}
 	
@@ -66,9 +66,9 @@ void LocalPool::Free(Parcel* pParcel) noexcept
 {
 	if (mbCache.load(std::memory_order_acquire)){
 		if (mId == std::this_thread::get_id()){
-			mParallel.CacheST(pParcel); return;
+			mCache.ListST(pParcel); return;
 		} else {
-			if (mParallel.CacheMT(pParcel)) return;
+			if (mCache.ListMT(pParcel)) return;
 		}
 	}
 	if (DecCache(1) == 0) Delete();
@@ -78,16 +78,16 @@ void LocalPool::Free(Parcel* pParcel) noexcept
 
 void* LocalPool::Alloc() noexcept
 {
-	auto& rCacheST = mParallel.mCacheST;
-	Auto pParcel = rCacheST.p;
+	auto& rListST = mCache.mListST;
+	Auto pParcel = rListST.p;
 	if (pParcel){
-		rCacheST.p = pParcel->Alloc(this);
+		rListST.p = pParcel->Alloc(this);
 		return pParcel->CastData();
 	} else {
-		Auto oRevolver = mParallel.mRevolverAlloc.o & mParallel.RevolverMask();
-		pParcel = mParallel.maCacheMT[oRevolver].p.exchange(nullptr, std::memory_order_acq_rel);
+		Auto oRevolver = mCache.mRevolverAlloc.o & mCache.RevolverMask();
+		pParcel = mCache.maListMT[oRevolver].p.exchange(nullptr, std::memory_order_acq_rel);
 		if (pParcel){
-			mParallel.mRevolverAlloc.o = ++oRevolver;
+			mCache.mRevolverAlloc.o = ++oRevolver;
 			pParcel->Alloc(this);
 			return pParcel->CastData();
 		} else {
@@ -103,7 +103,7 @@ uint16_t LocalPool::Clearance() noexcept
 {
 	mbCache.store(false, std::memory_order_release);
 	
-	Auto nCache = mParallel.Clearance();
+	Auto nCache = mCache.Clearance();
 	return DecCache(nCache);
 }
 

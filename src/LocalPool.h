@@ -37,7 +37,7 @@ class alignas(csCacheLine) LocalPool final : public Base, private NonCopyable<Lo
 		LocalCntx* mpOwner;
 		uint16_t mo;
 		
-		Parallel<cnPoolParcel> mParallel;
+		Cache<cnPoolParcel> mCache;
 		
 		alignas(csCacheLine) std::atomic_bool mbCache;
 		alignas(csCacheLine) std::atomic_uint16_t mnCache;

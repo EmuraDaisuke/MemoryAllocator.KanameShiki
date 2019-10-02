@@ -34,7 +34,7 @@ LocalCram::LocalCram(LocalCntx* pOwner, uint16_t b)
 ,mRealm(Tag::Realm(bit(b)))
 ,mvParcel(to_t(this+1))
 ,meParcel(mvParcel + (bit(b) * cnCramParcel))
-,maParallel{}
+,maCache{}
 ,mbCache(true)
 ,mnCache(0)
 {
@@ -61,13 +61,13 @@ void LocalCram::Free(Parcel* pParcel) noexcept
 	if (mbCache.load(std::memory_order_acquire)){
 		Auto pTag = Tag::CastTag(pParcel);
 		Auto RealmT = pTag->Realm();
-		assert(RealmT < numof(maParallel));
-		auto& rParallel = maParallel[RealmT];
+		assert(RealmT < numof(maCache));
+		auto& rCache = maCache[RealmT];
 		
 		if (mId == std::this_thread::get_id()){
-			rParallel.CacheST(pParcel); return;
+			rCache.ListST(pParcel); return;
 		} else {
-			if (rParallel.CacheMT(pParcel)) return;
+			if (rCache.ListMT(pParcel)) return;
 		}
 	}
 	if (DecCache(1) == 0) Delete();
@@ -79,19 +79,19 @@ void* LocalCram::Alloc(std::size_t s) noexcept
 {
 	Auto RealmS = Tag::Realm(s);
 	Auto RealmT = RealmS - mRealm;
-	assert(RealmT < numof(maParallel));
-	auto& rParallel = maParallel[RealmT];
+	assert(RealmT < numof(maCache));
+	auto& rCache = maCache[RealmT];
 	
-	auto& rCacheST = rParallel.mCacheST;
-	Auto pParcel = rCacheST.p;
+	auto& rListST = rCache.mListST;
+	Auto pParcel = rListST.p;
 	if (pParcel){
-		rCacheST.p = pParcel->Alloc(this);
+		rListST.p = pParcel->Alloc(this);
 		return pParcel->CastData();
 	} else {
-		Auto oRevolver = rParallel.mRevolverAlloc.o & rParallel.RevolverMask();
-		pParcel = rParallel.maCacheMT[oRevolver].p.exchange(nullptr, std::memory_order_acq_rel);
+		Auto oRevolver = rCache.mRevolverAlloc.o & rCache.RevolverMask();
+		pParcel = rCache.maListMT[oRevolver].p.exchange(nullptr, std::memory_order_acq_rel);
 		if (pParcel){
-			rParallel.mRevolverAlloc.o = ++oRevolver;
+			rCache.mRevolverAlloc.o = ++oRevolver;
 			pParcel->Alloc(this);
 			return pParcel->CastData();
 		} else {
@@ -133,7 +133,7 @@ uint16_t LocalCram::Clearance() noexcept
 	mbCache.store(false, std::memory_order_release);
 	
 	uint16_t nCache = 0;
-	for (auto& rParallel : maParallel) nCache += rParallel.Clearance();
+	for (auto& rCache : maCache) nCache += rCache.Clearance();
 	return DecCache(nCache);
 }
 
