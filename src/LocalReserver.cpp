@@ -74,9 +74,7 @@ class LocalReserver::Segment final {
 	
 	
 	private:
-		struct Reserver {
-			void* p;
-		};
+		struct Reserver { void* p; };
 		
 		const std::size_t ms;
 		

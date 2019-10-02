@@ -34,12 +34,9 @@ class GlobalHeap final : private NonCopyable<GlobalHeap> {
 	
 	
 	private:
-		struct List {
-			Node* pHead;
-		};
+		struct List { Node* pHead; };
 		
 		std::mutex mMutex;
-		
 		std::size_t ms;
 		void* mp;
 		
@@ -47,6 +44,7 @@ class GlobalHeap final : private NonCopyable<GlobalHeap> {
 		
 		List mOrder;
 		std::array<List, 64> maFree;
+		
 		uint64_t mabFree;
 };
 

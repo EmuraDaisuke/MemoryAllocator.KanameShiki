@@ -186,15 +186,9 @@ class GlobalReserver::Segment final {
 	
 	
 	private:
-		struct alignas(csCacheLine) Spinlock {
-			std::atomic_flag f;
-		};
-		struct Reserver {
-			void* p;
-		};
-		struct Offset {
-			uint16_t o;
-		};
+		struct alignas(csCacheLine) Spinlock { std::atomic_flag f; };
+		struct Reserver { void* p; };
+		struct Offset { uint16_t o; };
 		
 		const std::size_t ms;
 		const uint16_t mRealm;
@@ -210,7 +204,6 @@ class GlobalReserver::Segment final {
 		alignas(csCacheLine) std::atomic_uint16_t moRevolverAlloc;
 		
 		Spinlock* const maSpinlock;
-		
 		Reserver* const maaReserver;
 		Offset* const maoReserver;
 };
