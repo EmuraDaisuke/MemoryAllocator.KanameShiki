@@ -10,7 +10,7 @@ uint64_t NumLocalCram() noexcept;
 
 
 
-class LocalCram final : public Base, private NonCopyable<LocalCram> {
+class alignas(csCacheLine) LocalCram final : public Base, private NonCopyable<LocalCram> {
 	public:
 		~LocalCram() noexcept;
 		

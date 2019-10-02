@@ -63,10 +63,10 @@ class alignas(csCacheLine) Parallel final {
 		struct Cache { Parcel* p; };
 		struct ACache { std::atomic<Parcel*> p; };
 		
-		ARevolver mRevolverFree;
-		Revolver mRevolverAlloc;
+		alignas(csCacheLine) ARevolver mRevolverFree;
+		alignas(csCacheLine) Revolver mRevolverAlloc;
 		
-		Cache mCacheST;
+		alignas(csCacheLine) Cache mCacheST;
 		alignas(csCacheLine) std::array<ACache, cnRevolver> maCacheMT;
 };
 

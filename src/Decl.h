@@ -10,7 +10,7 @@ class Tag;
 class Base;
 class Parcel;
 class Relay;
-template <uint16_t cnRevolver> class alignas(csCacheLine) Parallel;
+template <uint16_t cnRevolver> class Parallel;
 
 class LocalPool;
 class LocalCram;

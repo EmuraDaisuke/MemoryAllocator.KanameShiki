@@ -10,7 +10,7 @@ uint64_t NumLocalPool() noexcept;
 
 
 
-class LocalPool final : public Base, private NonCopyable<LocalPool> {
+class alignas(csCacheLine) LocalPool final : public Base, private NonCopyable<LocalPool> {
 	public:
 		~LocalPool() noexcept;
 		

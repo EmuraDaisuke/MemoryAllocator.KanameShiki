@@ -197,8 +197,8 @@ class GlobalReserver::Segment final {
 		const uint16_t mmRevolver;
 		const uint16_t mnReserver;
 		
-		alignas(csCacheLine) std::atomic_int64_t mnAllocHeap;
-		alignas(csCacheLine) std::atomic_int64_t mnAllocVirtual;
+		std::atomic_int64_t mnAllocHeap;
+		std::atomic_int64_t mnAllocVirtual;
 		
 		alignas(csCacheLine) std::atomic_uint16_t moRevolverFree;
 		alignas(csCacheLine) std::atomic_uint16_t moRevolverAlloc;
