@@ -45,7 +45,7 @@ The unit is seconds. The lower the number, the faster.
 ![fill_c3_1](./Image/fill_c3_1.png)
 ![fill_c4_1](./Image/fill_c4_1.png)
 
-Kaname-Shiki has high hardware cache efficiency, so even if it is greatly inferior in "allocation and release only", the difference is small when actually reading and writing memory, and it has sufficient high speed performance.  
+Kaname-Shiki has high hardware cache efficiency, so even if it is greatly inferior in "Allocation and Free only", the difference is small when actually reading and writing memory, and it has sufficient high speed performance.  
 
 ## multi-thread
 This is the cumulative total of nine tests from testA to testI.  
