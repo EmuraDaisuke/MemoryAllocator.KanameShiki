@@ -42,9 +42,9 @@ LocalCntx::~LocalCntx() noexcept
 
 
 LocalCntx::LocalCntx(bool bInit)
-:mapCram{}
+:mReserver(bInit)
 ,mapPool{}
-,mReserver(true)
+,mapCram{}
 {
 	if (gvLocalCntx++ == 0){
 		assert(!gpLocalCntx);
