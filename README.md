@@ -17,7 +17,7 @@ It has the following features.
 * Utilization of highly efficient memory
 * Utilization of highly efficient HardwareCache
 * Thread scalable
-* Lightweight source code (total 50KB, 2700 lines)
+* Lightweight source code (total 49KB, 2600 lines)
 
 <br>
 
@@ -27,25 +27,48 @@ The verified environment is as follows.
 * Core i7-8700 3.20GHz
 * Memory 32GiB
 
-This is the cumulative total of nine tests from testA to testI.  
+## single-thread
+This is the cumulative total of five types of tests from testA to testE.  
 The unit is seconds. The lower the number, the faster.  
-* testA to testE: Simple parallel operation test
-* testF to testI: Tests assuming more practical multi-thread programming
+* testA to testE : Simple test
 * See the Benchmark directory for details on each test
 
-## Allocation and Free only
-![c1](./Image/c1.png)
-![c2](./Image/c2.png)
-![c3](./Image/c3.png)
-![c4](./Image/c4.png)
-** ! Note ! ** : Mimalloc does not account for the Free load because the allocation failure occurred 240,000 times in the “2MiB to 32MiB” test.  
+### Allocation and Free only
+![c1_1](./Image/c1_1.png)
+![c2_1](./Image/c2_1.png)
+![c3_1](./Image/c3_1.png)
+![c4_1](./Image/c4_1.png)
 
-## Allocation and Free with memory filling (HardwareCache efficiency)
-![fill_c1](./Image/fill_c1.png)
-![fill_c2](./Image/fill_c2.png)
-![fill_c3](./Image/fill_c3.png)
-![fill_c4](./Image/fill_c4.png)
+### Allocation and Free with memory filling (HardwareCache efficiency)
+![fill_c1_1](./Image/fill_c1_1.png)
+![fill_c2_1](./Image/fill_c2_1.png)
+![fill_c3_1](./Image/fill_c3_1.png)
+![fill_c4_1](./Image/fill_c4_1.png)
+
+Kaname-Shiki has high hardware cache efficiency, so even if it is greatly inferior in "allocation and release only", the difference is small when actually reading and writing memory, and it has sufficient high speed performance.  
+
+## multi-thread
+This is the cumulative total of nine tests from testA to testI.  
+The unit is seconds. The lower the number, the faster.  
+* testA to testE : Simple test
+* testF to testI : Tests assuming more practical multi-thread programming
+* See the Benchmark directory for details on each test
+
+### Allocation and Free only
+![c1_8](./Image/c1_8.png)
+![c2_8](./Image/c2_8.png)
+![c3_8](./Image/c3_8.png)
+![c4_8](./Image/c4_8.png)
+** ! Note ! ** : Mimalloc does not account for the Free load because the allocation failure occurred 230,000 times in the “2MiB to 32MiB” test.  
+
+### Allocation and Free with memory filling (HardwareCache efficiency)
+![fill_c1_8](./Image/fill_c1_8.png)
+![fill_c2_8](./Image/fill_c2_8.png)
+![fill_c3_8](./Image/fill_c3_8.png)
+![fill_c4_8](./Image/fill_c4_8.png)
 ** ! Note ! ** : Mimalloc does not account for the memory fill and Free load due to 230,000 allocation failures in the "2MiB to 32MiB" test.  
+
+Comparing single-thread and multi-thread tests, you can see that Kaname-Shiki is a highly efficient parallel operation.  
 
 <br>
 
@@ -188,6 +211,10 @@ bash ./build_c.sh
 # Test
 Common additional compilation options  
 ~~~
+-DSINGLE=0～1
+0 or undefined : multi-thread test
+1 : single-thread test
+
 -DCATEGORY=0～4
 0 or undefined : 0B～32MiB
 1 : 0B～1KiB

@@ -3,7 +3,7 @@
 
 以下の特徴があります。  
 * あらゆるサイズの、高速な割り当てと解放
-* RevolverAtomicによる、高効率な並列動作
+* RevolverAtomic による、高効率な並列動作
 * 高速な Cache 機構（自スレッド FreeList と、他スレッド FreeList）
   * 自スレッド FreeList 動作時、atomic 操作なし、CAS 操作なし（Lock-Free & Wait-Free）
   * 他スレッド FreeList 動作時、RevolverAtomic（Lock-Free、!Wait-Free）
@@ -17,7 +17,7 @@
 * 高効率なメモリーの活用
 * 高効率な HardwareCache の活用
 * スレッドスケーラブル
-* 軽量なソースコード（総量50KB、行数2700）
+* 軽量なソースコード（総量49KB、行数2600）
 
 <br>
 
@@ -27,25 +27,48 @@
 * Core i7-8700 3.20GHz
 * Memory 32GiB
 
+## シングルスレッド
+testA ～ testE まで、5種類のテストを行った累計です。  
+単位は秒で、数値が低いほど高速です。  
+* testA ～ testE ：シンプルなテスト
+* 各テストの詳細は、Benchmark 下を参照してください
+
+### 割り当てと解放のみ
+![c1_1](./Image/c1_1.png)
+![c2_1](./Image/c2_1.png)
+![c3_1](./Image/c3_1.png)
+![c4_1](./Image/c4_1.png)
+
+### メモリーフィルを伴った、割り当てと解放（HardwareCache 効率）
+![fill_c1_1](./Image/fill_c1_1.png)
+![fill_c2_1](./Image/fill_c2_1.png)
+![fill_c3_1](./Image/fill_c3_1.png)
+![fill_c4_1](./Image/fill_c4_1.png)
+
+領式は、HardwareCache 効率が高い為、「割り当てと解放のみ」では大きく劣るケースでも、実際にメモリーを読み書きする場合の差は小さく、十分な高速性能を備えています。  
+
+## マルチスレッド
 testA ～ testI まで、9種類のテストを行った累計です。  
 単位は秒で、数値が低いほど高速です。  
-* testA ～ testE ：シンプルな並列動作テスト
+* testA ～ testE ：シンプルなテスト
 * testF ～ testI ：より実践的なマルチスレッドプログラミングを想定したテスト
 * 各テストの詳細は、Benchmark 下を参照してください
 
-## 割り当てと解放のみ
-![c1](./Image/c1.png)
-![c2](./Image/c2.png)
-![c3](./Image/c3.png)
-![c4](./Image/c4.png)
-**！注意！**：mimalloc は、「2MiB～32MiB」のテストで、割り当ての失敗が24万回起きている為、解放の負荷が計上されていません。  
+### 割り当てと解放のみ
+![c1_8](./Image/c1_8.png)
+![c2_8](./Image/c2_8.png)
+![c3_8](./Image/c3_8.png)
+![c4_8](./Image/c4_8.png)
+**！注意！**：mimalloc は、「2MiB～32MiB」のテストで、割り当ての失敗が23万回起きている為、解放の負荷が計上されていません。  
 
-## メモリーフィルを伴った、割り当てと解放（HardwareCache 効率）
-![fill_c1](./Image/fill_c1.png)
-![fill_c2](./Image/fill_c2.png)
-![fill_c3](./Image/fill_c3.png)
-![fill_c4](./Image/fill_c4.png)
+### メモリーフィルを伴った、割り当てと解放（HardwareCache 効率）
+![fill_c1_8](./Image/fill_c1_8.png)
+![fill_c2_8](./Image/fill_c2_8.png)
+![fill_c3_8](./Image/fill_c3_8.png)
+![fill_c4_8](./Image/fill_c4_8.png)
 **！注意！**：mimalloc は、「2MiB～32MiB」のテストで、割り当ての失敗が23万回起きている為、メモリーフィルと解放の負荷が計上されていません。  
+
+シングルスレッドとマルチスレッドを比較すると、領式の並列動作が高効率だと分かります。  
 
 <br>
 
@@ -187,6 +210,10 @@ bash ./build_c.sh
 # テスト
 共通の、追加のコンパイルオプション  
 ~~~
+-DSINGLE=0～1
+0 or undefined : multi-thread test
+1 : single-thread test
+
 -DCATEGORY=0～4
 0 or undefined : 0B～32MiB
 1 : 0B～1KiB
