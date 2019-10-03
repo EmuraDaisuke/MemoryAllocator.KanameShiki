@@ -5,6 +5,10 @@
 #define FILL 0
 #endif//]
 
+#if !defined(SINGLE)//[
+#define SINGLE 0
+#endif//]
+
 #if FILL
 #undef NDEBUG
 #endif
@@ -47,7 +51,11 @@ constexpr std::size_t MiB(std::size_t v){ return (v<<20); }
 constexpr std::size_t GiB(std::size_t v){ return (v<<30); }
 uint8_t code(void* p){ return (reinterpret_cast<std::size_t>(p)>>4); }
 
+#if SINGLE//[
+static constexpr std::size_t T = bit(0);
+#else//][
 static constexpr std::size_t T = bit(3);
+#endif//]
 
 #if CATEGORY == 1
 static constexpr std::size_t N = bit(5);
@@ -501,6 +509,7 @@ int main(int argc, char* argv[])
             clog(NullptrNum());
         }
         
+        #if !SINGLE//[
         {   // 
             NullptrReset();
             for (auto b = B0; b <= B1; ++b){
@@ -532,6 +541,7 @@ int main(int argc, char* argv[])
             }
             clog(NullptrNum());
         }
+        #endif//]
     }
     
     clog("***");
