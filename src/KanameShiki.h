@@ -14,7 +14,6 @@
 
 #if _WIN32//[
 #include <windows.h>
-#include <tlhelp32.h>
 #else//][
 #include <sys/mman.h>
 namespace std {

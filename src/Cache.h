@@ -7,7 +7,7 @@ namespace KanameShiki {
 
 
 template <uint16_t cnRevolver>
-class alignas(csCacheLine) Cache final {
+class alignas(csCacheLine) Cache final : private NonCopyable<Cache<cnRevolver>> {
 	public:
 		~Cache() noexcept = default;
 		
