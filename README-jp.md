@@ -231,34 +231,34 @@ bash ./build_c.sh
 **領式（特化型）**  
 ~~~
 cl -DNDEBUG -DKANAMESHIKI Main.cpp CLog.cpp -Ox -EHsc -Fe:KanameShiki1.exe KanameShiki1.lib
-./KanameShiki1.exe
+KanameShiki1.exe
 ~~~
 **領式（協調型）**  
 ~~~
 cl -DNDEBUG -DKANAMESHIKI Main.cpp CLog.cpp -Ox -EHsc -Fe:KanameShiki0.exe KanameShiki0.lib
-./KanameShiki0.exe
+KanameShiki0.exe
 ~~~
 **malloc**  
 ~~~
 cl -DNDEBUG Main.cpp CLog.cpp -Ox -EHsc -Fe:Malloc.exe
-./Malloc.exe
+Malloc.exe
 ~~~
 
 #### **ご自身で環境を整えられる方向け**
 **mimalloc**（ビルドした環境に依存する為、別環境でビルドした mimalloc.lib をリンクしようとした場合、リンクエラーが発生する場合があります）  
 ~~~
 cl -DNDEBUG -DMIMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:MiMalloc.exe mimalloc.lib advapi32.lib -MD -link -LTCG
-./MiMalloc.exe
+MiMalloc.exe
 ~~~
 **tcmalloc**  
 ~~~
 cl -DNDEBUG -DTCMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:TcMalloc.exe libtcmalloc_minimal.lib
-./TcMalloc.exe
+TcMalloc.exe
 ~~~
 **jemalloc**（Segmentation fault が多発しますが、何度か繰り返すと動きます。正常動作しているかは不明です）  
 ~~~
 cl -DNDEBUG -DJEMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:JeMalloc.exe jemalloc.lib -I"jemalloc/include/msvc_compat"
-./JeMalloc.exe
+JeMalloc.exe
 ~~~
 
 ## Linux

@@ -232,34 +232,34 @@ Common additional compilation options
 **Kaname-Shiki（特化型）**  
 ~~~
 cl -DNDEBUG -DKANAMESHIKI Main.cpp CLog.cpp -Ox -EHsc -Fe:KanameShiki1.exe KanameShiki1.lib
-./KanameShiki1.exe
+KanameShiki1.exe
 ~~~
 **Kaname-Shiki（協調型）**  
 ~~~
 cl -DNDEBUG -DKANAMESHIKI Main.cpp CLog.cpp -Ox -EHsc -Fe:KanameShiki0.exe KanameShiki0.lib
-./KanameShiki0.exe
+KanameShiki0.exe
 ~~~
 **malloc**  
 ~~~
 cl -DNDEBUG Main.cpp CLog.cpp -Ox -EHsc -Fe:Malloc.exe
-./Malloc.exe
+Malloc.exe
 ~~~
 
 ### **For those who can create their own environment**
 **mimalloc**（Because it depends on the built environment, if you try to link mimalloc.lib built in another environment, a link error may occur）  
 ~~~
 cl -DNDEBUG -DMIMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:MiMalloc.exe mimalloc.lib advapi32.lib -MD -link -LTCG
-./MiMalloc.exe
+MiMalloc.exe
 ~~~
 **tcmalloc**  
 ~~~
 cl -DNDEBUG -DTCMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:TcMalloc.exe libtcmalloc_minimal.lib
-./TcMalloc.exe
+TcMalloc.exe
 ~~~
 **jemalloc**（Segmentation fault occurs frequently, but it works when repeated several times. It is unknown whether it is operating normally）  
 ~~~
 cl -DNDEBUG -DJEMALLOC Main.cpp CLog.cpp -Ox -EHsc -Fe:JeMalloc.exe jemalloc.lib -I"jemalloc/include/msvc_compat"
-./JeMalloc.exe
+JeMalloc.exe
 ~~~
 
 ## Linux
