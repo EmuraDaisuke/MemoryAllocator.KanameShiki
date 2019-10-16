@@ -27,26 +27,6 @@ The verified environment is as follows.
 * Core i7-8700 3.20GHz
 * Memory 32GiB
 
-## single-thread
-This is the cumulative total of five types of tests from testA to testE.  
-The unit is seconds. The lower the number, the faster.  
-* testA to testE : Simple test
-* See the Benchmark directory for details on each test
-
-### Allocation and Free only
-![c1_1](./Image/c1_1.png)
-![c2_1](./Image/c2_1.png)
-![c3_1](./Image/c3_1.png)
-![c4_1](./Image/c4_1.png)
-
-### Allocation and Free with memory filling (HardwareCache efficiency)
-![fill_c1_1](./Image/fill_c1_1.png)
-![fill_c2_1](./Image/fill_c2_1.png)
-![fill_c3_1](./Image/fill_c3_1.png)
-![fill_c4_1](./Image/fill_c4_1.png)
-
-Kaname-Shiki has high hardware cache efficiency, so even if it is greatly inferior in "Allocation and Free only", the difference is small when actually reading and writing memory, and it has sufficient high speed performance.  
-
 ## multi-thread
 This is the cumulative total of nine tests from testA to testI.  
 The unit is seconds. The lower the number, the faster.  
@@ -68,7 +48,25 @@ The unit is seconds. The lower the number, the faster.
 ![fill_c4_8](./Image/fill_c4_8.png)
 ** ! Note ! ** : Mimalloc does not account for the memory fill and Free load due to 230,000 allocation failures in the "2MiB to 32MiB" test.  
 
-Comparing single-thread and multi-thread tests, you can see that Kaname-Shiki is a highly efficient parallel operation.  
+## single-thread
+This is the cumulative total of five types of tests from testA to testE.  
+The unit is seconds. The lower the number, the faster.  
+* testA to testE : Simple test
+* See the Benchmark directory for details on each test
+
+### Allocation and Free only
+![c1_1](./Image/c1_1.png)
+![c2_1](./Image/c2_1.png)
+![c3_1](./Image/c3_1.png)
+![c4_1](./Image/c4_1.png)
+
+### Allocation and Free with memory filling (HardwareCache efficiency)
+![fill_c1_1](./Image/fill_c1_1.png)
+![fill_c2_1](./Image/fill_c2_1.png)
+![fill_c3_1](./Image/fill_c3_1.png)
+![fill_c4_1](./Image/fill_c4_1.png)
+
+Kaname-Shiki has high hardware cache efficiency, so even if it is greatly inferior in "Allocation and Free only", the difference is small when actually reading and writing memory, and it has sufficient high speed performance.  
 
 <br>
 
